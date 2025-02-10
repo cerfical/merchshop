@@ -59,11 +59,18 @@ func load(v *viper.Viper) (*Config, error) {
 	v.SetDefault("db.name", "postgres")
 	v.SetDefault("db.user", "postgres")
 
-	// Apply a custom hook so that [log.Level] values can be decoded with [log.Level.UnmarshalText]
-	options := viper.DecodeHook(mapstructure.TextUnmarshallerHookFunc())
+	options := []viper.DecoderConfigOption{
+		// Apply a custom hook so that [log.Level] values can be decoded with [log.Level.UnmarshalText]
+		viper.DecodeHook(mapstructure.TextUnmarshallerHookFunc()),
+
+		// Disallow unknown field names
+		func(dc *mapstructure.DecoderConfig) {
+			dc.ErrorUnused = true
+		},
+	}
 
 	var cfg Config
-	if err := v.Unmarshal(&cfg, options); err != nil {
+	if err := v.Unmarshal(&cfg, options...); err != nil {
 		return nil, err
 	}
 	return &cfg, nil
