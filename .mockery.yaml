@@ -1,0 +1,10 @@
+with-expecter: true
+packages:
+  github.com/cerfical/merchshop/internal/model:
+    interfaces:
+      UserStore:
+
+outpkg: "mocks"
+dir: "internal/mocks"
+mockname: "{{ .InterfaceName }}"
+filename: "{{ .InterfaceName | snakecase }}.go"

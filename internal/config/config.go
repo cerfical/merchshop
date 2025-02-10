@@ -6,6 +6,7 @@ import (
 
 	"github.com/cerfical/merchshop/internal/httpserv"
 	"github.com/cerfical/merchshop/internal/log"
+	"github.com/cerfical/merchshop/internal/postgres"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 )
@@ -49,8 +50,14 @@ func load(v *viper.Viper) (*Config, error) {
 
 	// Set up defaults
 	v.SetDefault("log.level", log.LevelInfo)
-	v.SetDefault("api.host", "localhost")
-	v.SetDefault("api.port", "8080")
+	v.SetDefault("server.host", "localhost")
+	v.SetDefault("server.port", "8080")
+
+	// Set up defaults commonly used by Postgres
+	v.SetDefault("db.host", "localhost")
+	v.SetDefault("db.port", "5432")
+	v.SetDefault("db.name", "postgres")
+	v.SetDefault("db.user", "postgres")
 
 	// Apply a custom hook so that [log.Level] values can be decoded with [log.Level.UnmarshalText]
 	options := viper.DecodeHook(mapstructure.TextUnmarshallerHookFunc())
@@ -64,6 +71,7 @@ func load(v *viper.Viper) (*Config, error) {
 
 // Config encompasses all available application-level configuration settings.
 type Config struct {
-	API httpserv.Config
-	Log log.Config
+	Server httpserv.Config
+	DB     postgres.Config
+	Log    log.Config
 }
