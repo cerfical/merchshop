@@ -2,15 +2,15 @@ package model
 
 // UserCreds specifies user credentials required to authenticate the user.
 type UserCreds struct {
-	Name     string
-	Password string
+	Name         string
+	PasswordHash []byte
 }
 
 // User identifies a single user.
 type User struct {
-	ID       int
-	Name     string
-	Password string
+	ID           int
+	Name         string
+	PasswordHash []byte
 }
 
 // UserStore provide storage to store user credentials.

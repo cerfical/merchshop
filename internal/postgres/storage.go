@@ -24,7 +24,7 @@ func Open(cfg *Config) (*Storage, error) {
 		CREATE TABLE IF NOT EXISTS users(
 			id SERIAL PRIMARY KEY,
 			name TEXT NOT NULL UNIQUE,
-			password TEXT NOT NULL
+			password_hash TEXT NOT NULL
 		)
 	`); err != nil {
 		return nil, err
@@ -62,21 +62,18 @@ type Storage struct {
 }
 
 func (s *Storage) GetUser(uc *model.UserCreds) (*model.User, error) {
-	// TODO: Hash the stored passwords
-	passwdHash := uc.Password
-
 	// TODO: Unnecessary update?
 	row := s.db.QueryRow(`
-		INSERT INTO users(name, password) VALUES($1, $2)
+		INSERT INTO users(name, password_hash) VALUES($1, $2)
 		ON CONFLICT (name) DO UPDATE SET
 			name=EXCLUDED.name
 		RETURNING *`,
 		uc.Name,
-		passwdHash,
+		uc.PasswordHash,
 	)
 
 	var u model.User
-	if err := row.Scan(&u.ID, &u.Name, &u.Password); err != nil {
+	if err := row.Scan(&u.ID, &u.Name, &u.PasswordHash); err != nil {
 		return nil, err
 	}
 	return &u, nil
