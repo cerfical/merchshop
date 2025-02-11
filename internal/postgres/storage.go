@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"strings"
 
@@ -62,46 +61,24 @@ type Storage struct {
 	db *sql.DB
 }
 
-func (s *Storage) GetUser(uc *model.UserCreds) (user *model.User, err error) {
-	tx, err := s.db.Begin()
-	if err != nil {
-		return nil, err
-	}
-
-	defer func() {
-		if rbErr := tx.Rollback(); rbErr != nil && !errors.Is(rbErr, sql.ErrTxDone) && err == nil {
-			err = rbErr
-		}
-	}()
-
+func (s *Storage) GetUser(uc *model.UserCreds) (*model.User, error) {
 	// TODO: Hash the stored passwords
 	passwdHash := uc.Password
-	row := tx.QueryRow("SELECT * FROM users WHERE name=$1", uc.Name)
+
+	// TODO: Unnecessary update?
+	row := s.db.QueryRow(`
+		INSERT INTO users(name, password) VALUES($1, $2)
+		ON CONFLICT (name) DO UPDATE SET
+			name=EXCLUDED.name
+		RETURNING *`,
+		uc.Name,
+		passwdHash,
+	)
 
 	var u model.User
 	if err := row.Scan(&u.ID, &u.Name, &u.Password); err != nil {
-		// If the error is not caused by the absence of the user record
-		if !errors.Is(err, sql.ErrNoRows) {
-			return nil, err
-		}
-
-		// Create a new user
-		row := tx.QueryRow(`
-			INSERT INTO users(name, password) VALUES($1, $2)
-			RETURNING *`,
-			uc.Name,
-			passwdHash,
-		)
-
-		if err := row.Scan(&u.ID, &u.Name, &u.Password); err != nil {
-			return nil, err
-		}
-	}
-
-	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
-
 	return &u, nil
 }
 
