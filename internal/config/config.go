@@ -1,9 +1,12 @@
 package config
 
 import (
+	"encoding/base64"
 	"errors"
+	"reflect"
 	"strings"
 
+	"github.com/cerfical/merchshop/internal/api"
 	"github.com/cerfical/merchshop/internal/httpserv"
 	"github.com/cerfical/merchshop/internal/log"
 	"github.com/cerfical/merchshop/internal/postgres"
@@ -50,8 +53,8 @@ func load(v *viper.Viper) (*Config, error) {
 
 	// Set up defaults
 	v.SetDefault("log.level", log.LevelInfo)
-	v.SetDefault("server.host", "localhost")
-	v.SetDefault("server.port", "8080")
+	v.SetDefault("api.server.host", "localhost")
+	v.SetDefault("api.server.port", "8080")
 
 	// Set up defaults commonly used by Postgres
 	v.SetDefault("db.host", "localhost")
@@ -61,10 +64,14 @@ func load(v *viper.Viper) (*Config, error) {
 
 	options := []viper.DecoderConfigOption{
 		// Apply a custom hook so that [log.Level] values can be decoded with [log.Level.UnmarshalText]
-		viper.DecodeHook(mapstructure.TextUnmarshallerHookFunc()),
+		viper.DecodeHook(mapstructure.ComposeDecodeHookFunc(
+			mapstructure.TextUnmarshallerHookFunc(),
+			base64StringToBytes,
+			mapstructure.StringToTimeDurationHookFunc(),
+		)),
 
-		// Disallow unknown field names
 		func(dc *mapstructure.DecoderConfig) {
+			// Disallow unknown field names
 			dc.ErrorUnused = true
 		},
 	}
@@ -76,9 +83,30 @@ func load(v *viper.Viper) (*Config, error) {
 	return &cfg, nil
 }
 
+func base64StringToBytes(src reflect.Type, dst reflect.Type, data any) (any, error) {
+	// Check if the destination option is a byte slice
+	if dst.Kind() != reflect.Slice || dst.Elem().Kind() != reflect.Uint8 {
+		return data, nil
+	}
+
+	if src.Kind() != reflect.String {
+		return nil, errors.New("expected a base64-encoded string")
+	}
+
+	bytes, err := base64.RawURLEncoding.DecodeString(data.(string))
+	if err != nil {
+		return nil, err
+	}
+	return bytes, nil
+}
+
 // Config encompasses all available application-level configuration settings.
 type Config struct {
-	Server httpserv.Config
-	DB     postgres.Config
-	Log    log.Config
+	API struct {
+		Auth   api.AuthConfig
+		Server httpserv.Config
+	}
+
+	DB  postgres.Config
+	Log log.Config
 }

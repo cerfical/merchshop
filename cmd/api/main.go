@@ -27,8 +27,8 @@ func main() {
 	}()
 
 	serv := httpserv.New(
-		&config.Server,
-		api.New(db, log),
+		&config.API.Server,
+		api.New(&config.API.Auth, db, log),
 		log,
 	)
 

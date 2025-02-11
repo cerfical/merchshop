@@ -7,11 +7,11 @@ import (
 	"github.com/cerfical/merchshop/internal/model"
 )
 
-func New(users model.UserStore, log *log.Logger) http.Handler {
+func New(auth *AuthConfig, users model.UserStore, log *log.Logger) http.Handler {
 	mux := http.NewServeMux()
 
-	auth := authHandler{users, log}
-	mux.HandleFunc("POST /api/auth", auth.authUser)
+	a := authHandler{users, auth, log}
+	mux.HandleFunc("POST /api/auth", a.authUser)
 
 	return mux
 }

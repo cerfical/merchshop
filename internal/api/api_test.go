@@ -30,12 +30,14 @@ type APITest struct {
 
 func (t *APITest) SetupSubTest() {
 	t.users = mocks.NewUserStore(t.T())
+
+	api := api.New(&api.AuthConfig{}, t.users, nil)
 	t.expect = httpexpect.WithConfig(httpexpect.Config{
 		TestName: t.T().Name(),
 		BaseURL:  "/api/auth",
 		Reporter: httpexpect.NewAssertReporter(t.T()),
 		Client: &http.Client{
-			Transport: httpexpect.NewBinder(api.New(t.users, nil)),
+			Transport: httpexpect.NewBinder(api),
 		},
 	})
 }

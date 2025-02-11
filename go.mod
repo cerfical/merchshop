@@ -4,6 +4,7 @@ go 1.23.1
 
 require (
 	github.com/gavv/httpexpect/v2 v2.16.0
+	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/jackc/pgx/v5 v5.7.2
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/rs/zerolog v1.33.0
