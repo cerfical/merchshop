@@ -18,9 +18,13 @@ func main() {
 	config := config.MustLoad(os.Args)
 	log := log.New(&config.Log)
 
-	db, err := postgres.Open(&config.DB)
+	db, err := postgres.NewStorage(&config.DB)
 	if err != nil {
 		log.Fatal("Failed to open the database", err)
+	}
+
+	if err := db.UpMigrations(); err != nil {
+		log.Fatal("Failed to apply migrations to the database", err)
 	}
 
 	defer func() {

@@ -7,4 +7,6 @@ type Config struct {
 
 	User     string
 	Password string
+
+	Migrations string
 }
