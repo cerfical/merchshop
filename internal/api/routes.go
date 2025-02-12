@@ -3,15 +3,15 @@ package api
 import (
 	"net/http"
 
+	"github.com/cerfical/merchshop/internal/domain/auth"
 	"github.com/cerfical/merchshop/internal/log"
-	"github.com/cerfical/merchshop/internal/model"
 )
 
-func New(auth *AuthConfig, users model.UserStore, log *log.Logger) http.Handler {
+func New(authService auth.Service, log *log.Logger) http.Handler {
 	mux := http.NewServeMux()
 
-	a := authHandler{users, auth, log}
-	mux.HandleFunc("POST /api/auth", a.authUser)
+	auth := authHandler{authService, log}
+	mux.HandleFunc("POST /api/auth", auth.authUser)
 
 	return mux
 }

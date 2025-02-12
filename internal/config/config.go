@@ -6,10 +6,10 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/cerfical/merchshop/internal/api"
 	"github.com/cerfical/merchshop/internal/httpserv"
+	"github.com/cerfical/merchshop/internal/infrastructure/jwt"
+	"github.com/cerfical/merchshop/internal/infrastructure/postgres"
 	"github.com/cerfical/merchshop/internal/log"
-	"github.com/cerfical/merchshop/internal/postgres"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 )
@@ -103,7 +103,9 @@ func base64StringToBytes(src reflect.Type, dst reflect.Type, data any) (any, err
 // Config encompasses all available application-level configuration settings.
 type Config struct {
 	API struct {
-		Auth   api.AuthConfig
+		Auth struct {
+			Token jwt.TokenConfig
+		}
 		Server httpserv.Config
 	}
 

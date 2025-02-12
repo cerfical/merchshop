@@ -7,14 +7,14 @@ import (
 	"net/http"
 )
 
-func encode(w http.ResponseWriter, status int, r any) {
+func writeResponse(w http.ResponseWriter, status int, r any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 
 	json.NewEncoder(w).Encode(r)
 }
 
-func decode[T any](r io.Reader) (*T, error) {
+func readRequest[T any](r io.Reader) (*T, error) {
 	dec := json.NewDecoder(r)
 	dec.DisallowUnknownFields()
 

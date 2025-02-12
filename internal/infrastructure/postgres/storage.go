@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/cerfical/merchshop/internal/model"
+	"github.com/cerfical/merchshop/internal/domain/model"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
@@ -61,22 +61,22 @@ type Storage struct {
 	db *sql.DB
 }
 
-func (s *Storage) GetUser(uc *model.UserCreds) (*model.User, error) {
+func (s *Storage) PutUser(u *model.User) (*model.User, error) {
 	// TODO: Unnecessary update?
 	row := s.db.QueryRow(`
 		INSERT INTO users(name, password_hash) VALUES($1, $2)
 		ON CONFLICT (name) DO UPDATE SET
 			name=EXCLUDED.name
 		RETURNING *`,
-		uc.Name,
-		uc.PasswordHash,
+		u.Username,
+		u.PasswordHash,
 	)
 
-	var u model.User
-	if err := row.Scan(&u.ID, &u.Name, &u.PasswordHash); err != nil {
+	var uu model.User
+	if err := row.Scan(&uu.ID, &uu.Username, &uu.PasswordHash); err != nil {
 		return nil, err
 	}
-	return &u, nil
+	return &uu, nil
 }
 
 func (s *Storage) Close() error {
