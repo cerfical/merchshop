@@ -28,7 +28,8 @@ func NewPassword(s string) (Password, error) {
 }
 
 type User struct {
-	ID           UserID
+	ID UserID
+
 	Username     Username
 	PasswordHash []byte
 }

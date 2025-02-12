@@ -94,10 +94,11 @@ func (s *Storage) migrate(f func(*migrate.Migrate) error) error {
 func (s *Storage) PutUser(u *model.User) (*model.User, error) {
 	// TODO: Unnecessary update?
 	row := s.db.QueryRow(`
-		INSERT INTO users(username, password_hash) VALUES($1, $2)
-		ON CONFLICT (username) DO UPDATE SET
-			username=EXCLUDED.username
-		RETURNING *`,
+			INSERT INTO users(username, password_hash)
+			VALUES($1, $2)
+			ON CONFLICT (username) DO UPDATE
+				SET username=EXCLUDED.username
+			RETURNING *`,
 		u.Username,
 		u.PasswordHash,
 	)

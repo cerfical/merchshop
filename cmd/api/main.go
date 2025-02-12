@@ -6,7 +6,7 @@ import (
 
 	"github.com/cerfical/merchshop/internal/api"
 	"github.com/cerfical/merchshop/internal/config"
-	"github.com/cerfical/merchshop/internal/domain/auth"
+	"github.com/cerfical/merchshop/internal/domain/services"
 	"github.com/cerfical/merchshop/internal/httpserv"
 	"github.com/cerfical/merchshop/internal/infrastructure/bcrypt"
 	"github.com/cerfical/merchshop/internal/infrastructure/jwt"
@@ -33,9 +33,10 @@ func main() {
 		}
 	}()
 
-	auth := auth.NewService(db, bcrypt.NewHasher(), jwt.NewTokenAuth(config.API.Auth.Token))
-	serv := httpserv.New(&config.API.Server, api.New(auth, log), log)
+	tokens := jwt.NewTokenAuth(&config.API.Auth.Token)
+	auth := services.NewAuthService(db, bcrypt.NewHasher(), tokens)
 
+	serv := httpserv.New(&config.API.Server, api.NewHandler(auth, log), log)
 	if err := serv.Run(context.Background()); err != nil {
 		log.Error("The server terminated abnormally", err)
 	}

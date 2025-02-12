@@ -1,9 +1,12 @@
 with-expecter: true
 packages:
-  github.com/cerfical/merchshop/internal/domain/auth:
+  github.com/cerfical/merchshop/internal/domain/services:
     interfaces:
       PasswordHasher:
       TokenGen:
+      AuthService:
+  github.com/cerfical/merchshop/internal/domain/repo:
+    interfaces:
       UserRepo:
 
 outpkg: "mocks"

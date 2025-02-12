@@ -1,21 +1,14 @@
-package auth
+package services
 
 import (
 	"fmt"
 
 	"github.com/cerfical/merchshop/internal/domain/model"
+	"github.com/cerfical/merchshop/internal/domain/repo"
 )
 
-func NewService(users UserRepo, hasher PasswordHasher, tokens TokenGen) Service {
-	return &service{users, hasher, tokens}
-}
-
-type Service interface {
-	AuthUser(model.UserCreds) (Token, error)
-}
-
-type UserRepo interface {
-	PutUser(*model.User) (*model.User, error)
+func NewAuthService(users repo.UserRepo, hasher PasswordHasher, tokens TokenGen) AuthService {
+	return &authService{users, hasher, tokens}
 }
 
 type PasswordHasher interface {
@@ -24,18 +17,20 @@ type PasswordHasher interface {
 }
 
 type TokenGen interface {
-	NewToken(u *model.User) (Token, error)
+	NewToken(u *model.User) (string, error)
 }
 
-type Token string
+type AuthService interface {
+	AuthUser(model.UserCreds) (string, error)
+}
 
-type service struct {
-	users  UserRepo
+type authService struct {
+	users  repo.UserRepo
 	hasher PasswordHasher
 	tokens TokenGen
 }
 
-func (s *service) AuthUser(uc model.UserCreds) (Token, error) {
+func (s *authService) AuthUser(uc model.UserCreds) (string, error) {
 	passwdHash, err := s.hasher.HashPassword(string(uc.Password))
 	if err != nil {
 		return "", fmt.Errorf("password hashing: %w", err)
