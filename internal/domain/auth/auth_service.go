@@ -15,6 +15,7 @@ type Token string
 
 type AuthService interface {
 	AuthUser(model.UserCreds) (Token, error)
+	AuthToken(Token) (model.Username, error)
 }
 
 type PasswordHasher interface {
@@ -24,12 +25,13 @@ type PasswordHasher interface {
 
 type TokenAuth interface {
 	IssueToken(model.Username) (Token, error)
+	AuthToken(Token) (model.Username, error)
 }
 
 type authService struct {
 	users  model.UserRepo
 	hasher PasswordHasher
-	tokens TokenAuth
+	auth   TokenAuth
 }
 
 func (s *authService) AuthUser(uc model.UserCreds) (Token, error) {
@@ -54,10 +56,14 @@ func (s *authService) AuthUser(uc model.UserCreds) (Token, error) {
 		return "", fmt.Errorf("password verification: %w", err)
 	}
 
-	token, err := s.tokens.IssueToken(u.Username)
+	token, err := s.auth.IssueToken(u.Username)
 	if err != nil {
 		return "", fmt.Errorf("token generation: %w", err)
 	}
 
 	return token, nil
+}
+
+func (s *authService) AuthToken(token Token) (model.Username, error) {
+	return s.auth.AuthToken(token)
 }

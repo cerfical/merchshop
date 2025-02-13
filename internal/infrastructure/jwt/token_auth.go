@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"errors"
 	"time"
 
 	"github.com/cerfical/merchshop/internal/domain/auth"
@@ -35,4 +36,24 @@ func (a *TokenAuth) IssueToken(u model.Username) (auth.Token, error) {
 	}
 
 	return auth.Token(signedToken), nil
+}
+
+func (a *TokenAuth) AuthToken(token auth.Token) (model.Username, error) {
+	t, err := jwt.Parse(string(token), func(*jwt.Token) (any, error) {
+		return a.secret, nil
+	})
+	if err != nil {
+		return "", err
+	}
+
+	if !t.Valid {
+		return "", errors.New("token is invalid")
+	}
+
+	u, err := t.Claims.GetSubject()
+	if err != nil {
+		return "", err
+	}
+
+	return model.Username(u), nil
 }

@@ -22,6 +22,62 @@ func (_m *TokenAuth) EXPECT() *TokenAuth_Expecter {
 	return &TokenAuth_Expecter{mock: &_m.Mock}
 }
 
+// AuthToken provides a mock function with given fields: _a0
+func (_m *TokenAuth) AuthToken(_a0 auth.Token) (model.Username, error) {
+	ret := _m.Called(_a0)
+
+	if len(ret) == 0 {
+		panic("no return value specified for AuthToken")
+	}
+
+	var r0 model.Username
+	var r1 error
+	if rf, ok := ret.Get(0).(func(auth.Token) (model.Username, error)); ok {
+		return rf(_a0)
+	}
+	if rf, ok := ret.Get(0).(func(auth.Token) model.Username); ok {
+		r0 = rf(_a0)
+	} else {
+		r0 = ret.Get(0).(model.Username)
+	}
+
+	if rf, ok := ret.Get(1).(func(auth.Token) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// TokenAuth_AuthToken_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AuthToken'
+type TokenAuth_AuthToken_Call struct {
+	*mock.Call
+}
+
+// AuthToken is a helper method to define mock.On call
+//   - _a0 auth.Token
+func (_e *TokenAuth_Expecter) AuthToken(_a0 interface{}) *TokenAuth_AuthToken_Call {
+	return &TokenAuth_AuthToken_Call{Call: _e.mock.On("AuthToken", _a0)}
+}
+
+func (_c *TokenAuth_AuthToken_Call) Run(run func(_a0 auth.Token)) *TokenAuth_AuthToken_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(auth.Token))
+	})
+	return _c
+}
+
+func (_c *TokenAuth_AuthToken_Call) Return(_a0 model.Username, _a1 error) *TokenAuth_AuthToken_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *TokenAuth_AuthToken_Call) RunAndReturn(run func(auth.Token) (model.Username, error)) *TokenAuth_AuthToken_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // IssueToken provides a mock function with given fields: _a0
 func (_m *TokenAuth) IssueToken(_a0 model.Username) (auth.Token, error) {
 	ret := _m.Called(_a0)

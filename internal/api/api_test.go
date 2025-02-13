@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/cerfical/merchshop/internal/api"
+	"github.com/cerfical/merchshop/internal/domain/auth"
 	"github.com/cerfical/merchshop/internal/domain/model"
 	"github.com/cerfical/merchshop/internal/mocks"
 	"github.com/gavv/httpexpect/v2"
@@ -101,6 +102,65 @@ func (t *APITest) TestAuth() {
 			test.Setup()
 
 			e := t.expect.Builder(test.Builder).POST("/auth").
+				Expect()
+			e.Status(test.Status)
+		})
+	}
+}
+
+func (t *APITest) TestInfo() {
+	tests := []struct {
+		Name  string
+		Setup func()
+
+		Builder func(*httpexpect.Request)
+		Status  int
+	}{
+		{
+			Name: "ok",
+			Setup: func() {
+				t.authService.EXPECT().
+					AuthToken(auth.Token("123321")).
+					Return("testuser", nil)
+				t.coinService.EXPECT().
+					GetCoinBalance(model.Username("testuser")).
+					Return(9, nil)
+			},
+
+			Builder: func(r *httpexpect.Request) {
+				r.WithHeader("Authorization", "Bearer 123321")
+				r.WithMatcher(func(r *httpexpect.Response) {
+					r.JSON().Object().
+						Value("coins").IsEqual(9)
+				})
+			},
+			Status: http.StatusOK,
+		},
+
+		{
+			Name: "auth_fail",
+			Setup: func() {
+				t.authService.EXPECT().
+					AuthToken(auth.Token("124421")).
+					Return("", model.ErrAuthFail)
+			},
+
+			Builder: func(r *httpexpect.Request) {
+				r.WithHeader("Authorization", "Bearer 124421")
+				r.WithMatcher(func(r *httpexpect.Response) {
+					r.JSON().Object().
+						Value("errors")
+				})
+			},
+			Status: http.StatusUnauthorized,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.Name, func() {
+			test.Setup()
+
+			e := t.expect.Builder(test.Builder).GET("/info").
 				Expect()
 			e.Status(test.Status)
 		})

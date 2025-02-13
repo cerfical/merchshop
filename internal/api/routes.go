@@ -15,7 +15,7 @@ func NewHandler(auth auth.AuthService, coins coins.CoinService, log *log.Logger)
 	mux.HandleFunc("POST /api/auth", a.authUser)
 
 	c := coinsHandler{coins, log}
-	mux.HandleFunc("GET /api/info", c.info)
+	mux.HandleFunc("GET /api/info", tokenAuth(auth)(c.info))
 
 	return mux
 }
