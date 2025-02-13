@@ -3,6 +3,7 @@ package jwt
 import (
 	"time"
 
+	"github.com/cerfical/merchshop/internal/domain/auth"
 	"github.com/cerfical/merchshop/internal/domain/model"
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -16,9 +17,9 @@ type TokenAuth struct {
 	lifetime time.Duration
 }
 
-func (a *TokenAuth) NewToken(u *model.User) (string, error) {
+func (a *TokenAuth) IssueToken(u model.Username) (auth.Token, error) {
 	claims := jwt.MapClaims{
-		"sub": u.Username,
+		"sub": u,
 		"iss": "merchshop",
 		"iat": time.Now().Unix(),
 	}
@@ -33,5 +34,5 @@ func (a *TokenAuth) NewToken(u *model.User) (string, error) {
 		return "", err
 	}
 
-	return signedToken, nil
+	return auth.Token(signedToken), nil
 }

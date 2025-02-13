@@ -3,12 +3,12 @@ package api
 import (
 	"net/http"
 
-	"github.com/cerfical/merchshop/internal/domain/services"
+	"github.com/cerfical/merchshop/internal/domain/coins"
 	"github.com/cerfical/merchshop/internal/log"
 )
 
 type coinsHandler struct {
-	coinService services.CoinService
+	coinService coins.CoinService
 	log         *log.Logger
 }
 

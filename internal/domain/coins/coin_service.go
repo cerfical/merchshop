@@ -1,14 +1,13 @@
-package services
+package coins
 
 import (
 	"errors"
 	"fmt"
 
 	"github.com/cerfical/merchshop/internal/domain/model"
-	"github.com/cerfical/merchshop/internal/domain/repo"
 )
 
-func NewCoinService(users repo.UserRepo) CoinService {
+func NewCoinService(users model.UserRepo) CoinService {
 	return &coinService{users}
 }
 
@@ -17,7 +16,7 @@ type CoinService interface {
 }
 
 type coinService struct {
-	users repo.UserRepo
+	users model.UserRepo
 }
 
 func (s *coinService) GetCoinBalance(un model.Username) (model.NumCoins, error) {

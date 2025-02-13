@@ -31,7 +31,7 @@ type User struct {
 	ID UserID
 
 	Username     Username
-	PasswordHash []byte
+	PasswordHash Hash
 
 	Coins NumCoins
 }
@@ -48,3 +48,5 @@ type UserID int
 type Password string
 
 type NumCoins int
+
+type Hash []byte

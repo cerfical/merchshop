@@ -3,11 +3,12 @@ package api
 import (
 	"net/http"
 
-	"github.com/cerfical/merchshop/internal/domain/services"
+	"github.com/cerfical/merchshop/internal/domain/auth"
+	"github.com/cerfical/merchshop/internal/domain/coins"
 	"github.com/cerfical/merchshop/internal/log"
 )
 
-func NewHandler(auth services.AuthService, coins services.CoinService, log *log.Logger) http.Handler {
+func NewHandler(auth auth.AuthService, coins coins.CoinService, log *log.Logger) http.Handler {
 	mux := http.NewServeMux()
 
 	a := authHandler{auth, log}

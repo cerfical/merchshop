@@ -1,12 +1,14 @@
 with-expecter: true
 packages:
-  github.com/cerfical/merchshop/internal/domain/services:
+  github.com/cerfical/merchshop/internal/domain/auth:
     interfaces:
       PasswordHasher:
-      TokenGen:
+      TokenAuth:
       AuthService:
+  github.com/cerfical/merchshop/internal/domain/coins:
+    interfaces:
       CoinService:
-  github.com/cerfical/merchshop/internal/domain/repo:
+  github.com/cerfical/merchshop/internal/domain/model:
     interfaces:
       UserRepo:
 

@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/cerfical/merchshop/internal/domain/auth"
 	"github.com/cerfical/merchshop/internal/domain/model"
-	"github.com/cerfical/merchshop/internal/domain/services"
 	"github.com/cerfical/merchshop/internal/log"
 )
 
 type authHandler struct {
-	authService services.AuthService
+	authService auth.AuthService
 	log         *log.Logger
 }
 

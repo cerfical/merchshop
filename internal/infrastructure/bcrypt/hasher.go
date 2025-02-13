@@ -3,6 +3,7 @@ package bcrypt
 import (
 	"errors"
 
+	"github.com/cerfical/merchshop/internal/domain/model"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -12,7 +13,7 @@ func NewHasher() *Hasher {
 
 type Hasher struct{}
 
-func (c *Hasher) HashPassword(passwd string) ([]byte, error) {
+func (c *Hasher) HashPassword(passwd model.Password) (model.Hash, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(passwd), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, err
@@ -20,11 +21,12 @@ func (c *Hasher) HashPassword(passwd string) ([]byte, error) {
 	return hash, nil
 }
 
-func (c *Hasher) VerifyPassword(passwd string, passwdHash []byte) (bool, error) {
+func (c *Hasher) VerifyPassword(passwd model.Password, passwdHash model.Hash) error {
 	if err := bcrypt.CompareHashAndPassword(passwdHash, []byte(passwd)); err != nil {
 		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
-			return false, nil
+			return model.ErrAuthFail
 		}
+		return err
 	}
-	return true, nil
+	return nil
 }

@@ -6,7 +6,8 @@ import (
 
 	"github.com/cerfical/merchshop/internal/api"
 	"github.com/cerfical/merchshop/internal/config"
-	"github.com/cerfical/merchshop/internal/domain/services"
+	"github.com/cerfical/merchshop/internal/domain/auth"
+	"github.com/cerfical/merchshop/internal/domain/coins"
 	"github.com/cerfical/merchshop/internal/httpserv"
 	"github.com/cerfical/merchshop/internal/infrastructure/bcrypt"
 	"github.com/cerfical/merchshop/internal/infrastructure/jwt"
@@ -33,9 +34,9 @@ func main() {
 		}
 	}()
 
-	tokens := jwt.NewTokenAuth(&config.API.Auth.Token)
-	auth := services.NewAuthService(db, bcrypt.NewHasher(), tokens)
-	coins := services.NewCoinService(db)
+	tokenAuth := jwt.NewTokenAuth(&config.API.Auth.Token)
+	auth := auth.NewAuthService(tokenAuth, db, bcrypt.NewHasher())
+	coins := coins.NewCoinService(db)
 
 	serv := httpserv.New(&config.API.Server, api.NewHandler(auth, coins, log), log)
 	if err := serv.Run(context.Background()); err != nil {
