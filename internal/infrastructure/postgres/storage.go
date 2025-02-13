@@ -114,13 +114,13 @@ func (s *Storage) PutUser(u *model.User) (*model.User, error) {
 func (s *Storage) GetUserByUsername(un model.Username) (*model.User, error) {
 	var u model.User
 	row := s.db.QueryRow(`
-			SELECT *
+			SELECT id, username, password_hash, coins
 			FROM users
 			WHERE username=$1`,
 		un,
 	)
 
-	if err := row.Scan(&u.ID, u.Username, u.PasswordHash, u.Coins); errors.Is(err, sql.ErrNoRows) {
+	if err := row.Scan(&u.ID, &u.Username, &u.PasswordHash, &u.Coins); errors.Is(err, sql.ErrNoRows) {
 		return nil, model.ErrNotExist
 	}
 
