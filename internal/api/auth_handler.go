@@ -11,14 +11,14 @@ import (
 )
 
 type authHandler struct {
-	auth services.AuthService
-	log  *log.Logger
+	authService services.AuthService
+	log         *log.Logger
 }
 
 func (h *authHandler) authUser(w http.ResponseWriter, r *http.Request) {
 	authReq, err := readRequest[authRequest](r.Body)
 	if err != nil {
-		// TODO: More specific error messages?
+		// TODO: More descriptive error messages?
 		writeErrorResponse(w, http.StatusBadRequest, "The request body is malformed")
 		return
 	}
@@ -29,7 +29,7 @@ func (h *authHandler) authUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := h.auth.AuthUser(uc)
+	token, err := h.authService.AuthUser(uc)
 	if err != nil {
 		if errors.Is(err, model.ErrAuthFail) {
 			writeErrorResponse(w, http.StatusUnauthorized, "The provided credentials are invalid")
