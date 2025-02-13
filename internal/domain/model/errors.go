@@ -3,6 +3,6 @@ package model
 import "errors"
 
 var (
-	ErrAuthFail = errors.New("auth failed")
-	ErrNotExist = errors.New("entity doesn't exist")
+	ErrAuthFail       = errors.New("auth failed")
+	ErrUserNotExist   = errors.New("user doesn't exist")
 )

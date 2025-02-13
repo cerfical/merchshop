@@ -22,10 +22,10 @@ type coinService struct {
 func (s *coinService) GetCoinBalance(un model.Username) (model.NumCoins, error) {
 	u, err := s.users.GetUserByUsername(un)
 	if err != nil {
-		if errors.Is(err, model.ErrNotExist) {
-			return 0, model.ErrNotExist
+		if errors.Is(err, model.ErrUserNotExist) {
+			return 0, model.ErrUserNotExist
 		}
-		return 0, fmt.Errorf("coin balance checkout: %w", err)
+		return 0, fmt.Errorf("check coin balance: %w", err)
 	}
 	return u.Coins, nil
 }

@@ -59,10 +59,10 @@ func (t *CoinServiceTest) TestGetUserCoinBalance() {
 			Setup: func() {
 				t.users.EXPECT().
 					GetUserByUsername(model.Username("badtestuser")).
-					Return(nil, model.ErrNotExist)
+					Return(nil, model.ErrUserNotExist)
 			},
 			Err: func(t assert.TestingT, err error, args ...any) bool {
-				return assert.Error(t, model.ErrNotExist, args...)
+				return assert.Error(t, model.ErrUserNotExist, args...)
 			},
 		},
 	}

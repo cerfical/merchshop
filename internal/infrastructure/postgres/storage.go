@@ -96,7 +96,7 @@ func (s *Storage) PutUser(u *model.User) (*model.User, error) {
 	// TODO: Unnecessary update?
 	row := s.db.QueryRow(`
 			INSERT INTO users(username, password_hash)
-			VALUES($1, $2)
+			VALUES ($1, $2)
 			ON CONFLICT (username) DO UPDATE
 				SET username=EXCLUDED.username
 			RETURNING *`,
@@ -121,7 +121,7 @@ func (s *Storage) GetUserByUsername(un model.Username) (*model.User, error) {
 	)
 
 	if err := row.Scan(&u.ID, &u.Username, &u.PasswordHash, &u.Coins); errors.Is(err, sql.ErrNoRows) {
-		return nil, model.ErrNotExist
+		return nil, model.ErrUserNotExist
 	}
 
 	return &u, nil
