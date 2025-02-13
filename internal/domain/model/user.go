@@ -32,6 +32,8 @@ type User struct {
 
 	Username     Username
 	PasswordHash []byte
+
+	Coins NumCoins
 }
 
 type UserCreds struct {
@@ -44,3 +46,5 @@ type Username string
 type UserID int
 
 type Password string
+
+type NumCoins int

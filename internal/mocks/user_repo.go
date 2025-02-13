@@ -20,6 +20,64 @@ func (_m *UserRepo) EXPECT() *UserRepo_Expecter {
 	return &UserRepo_Expecter{mock: &_m.Mock}
 }
 
+// GetUserByUsername provides a mock function with given fields: _a0
+func (_m *UserRepo) GetUserByUsername(_a0 model.Username) (*model.User, error) {
+	ret := _m.Called(_a0)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetUserByUsername")
+	}
+
+	var r0 *model.User
+	var r1 error
+	if rf, ok := ret.Get(0).(func(model.Username) (*model.User, error)); ok {
+		return rf(_a0)
+	}
+	if rf, ok := ret.Get(0).(func(model.Username) *model.User); ok {
+		r0 = rf(_a0)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.User)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(model.Username) error); ok {
+		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// UserRepo_GetUserByUsername_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetUserByUsername'
+type UserRepo_GetUserByUsername_Call struct {
+	*mock.Call
+}
+
+// GetUserByUsername is a helper method to define mock.On call
+//   - _a0 model.Username
+func (_e *UserRepo_Expecter) GetUserByUsername(_a0 interface{}) *UserRepo_GetUserByUsername_Call {
+	return &UserRepo_GetUserByUsername_Call{Call: _e.mock.On("GetUserByUsername", _a0)}
+}
+
+func (_c *UserRepo_GetUserByUsername_Call) Run(run func(_a0 model.Username)) *UserRepo_GetUserByUsername_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(model.Username))
+	})
+	return _c
+}
+
+func (_c *UserRepo_GetUserByUsername_Call) Return(_a0 *model.User, _a1 error) *UserRepo_GetUserByUsername_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *UserRepo_GetUserByUsername_Call) RunAndReturn(run func(model.Username) (*model.User, error)) *UserRepo_GetUserByUsername_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // PutUser provides a mock function with given fields: _a0
 func (_m *UserRepo) PutUser(_a0 *model.User) (*model.User, error) {
 	ret := _m.Called(_a0)

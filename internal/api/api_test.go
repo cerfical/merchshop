@@ -20,34 +20,34 @@ type APITest struct {
 
 	expect      *httpexpect.Expect
 	authService *mocks.AuthService
+	coinService *mocks.CoinService
 }
 
 func (t *APITest) SetupSubTest() {
 	t.authService = mocks.NewAuthService(t.T())
+	t.coinService = mocks.NewCoinService(t.T())
 
 	t.expect = httpexpect.WithConfig(httpexpect.Config{
 		TestName: t.T().Name(),
 		BaseURL:  "/api/",
 		Reporter: httpexpect.NewAssertReporter(t.T()),
 		Client: &http.Client{
-			Transport: httpexpect.NewBinder(api.NewHandler(t.authService, nil)),
+			Transport: httpexpect.NewBinder(api.NewHandler(t.authService, t.coinService, nil)),
 		},
 	})
 }
 
 func (t *APITest) TestAuth() {
 	tests := []struct {
-		Name string
-
-		SetupAuthService func()
+		Name  string
+		Setup func()
 
 		Builder func(*httpexpect.Request)
 		Status  int
 	}{
 		{
 			Name: "ok",
-
-			SetupAuthService: func() {
+			Setup: func() {
 				t.authService.EXPECT().
 					AuthUser(model.UserCreds{
 						Username: "testuser",
@@ -72,8 +72,7 @@ func (t *APITest) TestAuth() {
 
 		{
 			Name: "user_auth_fail",
-
-			SetupAuthService: func() {
+			Setup: func() {
 				t.authService.EXPECT().
 					AuthUser(model.UserCreds{
 						Username: "testuser",
@@ -99,9 +98,7 @@ func (t *APITest) TestAuth() {
 
 	for _, test := range tests {
 		t.Run(test.Name, func() {
-			if test.SetupAuthService != nil {
-				test.SetupAuthService()
-			}
+			test.Setup()
 
 			e := t.expect.Builder(test.Builder).POST("/auth").
 				Expect()

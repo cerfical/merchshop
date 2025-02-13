@@ -5,6 +5,7 @@ packages:
       PasswordHasher:
       TokenGen:
       AuthService:
+      CoinService:
   github.com/cerfical/merchshop/internal/domain/repo:
     interfaces:
       UserRepo:

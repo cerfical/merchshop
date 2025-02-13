@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -104,10 +105,26 @@ func (s *Storage) PutUser(u *model.User) (*model.User, error) {
 	)
 
 	var uu model.User
-	if err := row.Scan(&uu.ID, &uu.Username, &uu.PasswordHash); err != nil {
+	if err := row.Scan(&uu.ID, &uu.Username, &uu.PasswordHash, &uu.Coins); err != nil {
 		return nil, err
 	}
 	return &uu, nil
+}
+
+func (s *Storage) GetUserByUsername(un model.Username) (*model.User, error) {
+	var u model.User
+	row := s.db.QueryRow(`
+			SELECT *
+			FROM users
+			WHERE username=$1`,
+		un,
+	)
+
+	if err := row.Scan(&u.ID, u.Username, u.PasswordHash, u.Coins); errors.Is(err, sql.ErrNoRows) {
+		return nil, model.ErrNotExist
+	}
+
+	return &u, nil
 }
 
 func (s *Storage) Close() error {

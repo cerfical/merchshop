@@ -35,8 +35,9 @@ func main() {
 
 	tokens := jwt.NewTokenAuth(&config.API.Auth.Token)
 	auth := services.NewAuthService(db, bcrypt.NewHasher(), tokens)
+	coins := services.NewCoinService(db)
 
-	serv := httpserv.New(&config.API.Server, api.NewHandler(auth, log), log)
+	serv := httpserv.New(&config.API.Server, api.NewHandler(auth, coins, log), log)
 	if err := serv.Run(context.Background()); err != nil {
 		log.Error("The server terminated abnormally", err)
 	}
