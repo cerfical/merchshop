@@ -50,10 +50,10 @@ func (t *APITest) TestAuth() {
 			Name: "ok",
 			Setup: func() {
 				t.authService.EXPECT().
-					AuthUser(model.UserCreds{
-						Username: "testuser",
-						Password: "123",
-					}).
+					AuthUser(
+						model.Username("testuser"),
+						model.Password("123"),
+					).
 					Return("123321", nil)
 			},
 
@@ -75,10 +75,10 @@ func (t *APITest) TestAuth() {
 			Name: "user_auth_fail",
 			Setup: func() {
 				t.authService.EXPECT().
-					AuthUser(model.UserCreds{
-						Username: "testuser",
-						Password: "123",
-					}).
+					AuthUser(
+						model.Username("testuser"),
+						model.Password("123"),
+					).
 					Return("", model.ErrAuthFail)
 			},
 

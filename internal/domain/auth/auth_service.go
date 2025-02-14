@@ -14,13 +14,13 @@ func NewAuthService(auth TokenAuth, users model.UserRepo, hasher PasswordHasher)
 type Token string
 
 type AuthService interface {
-	AuthUser(model.UserCreds) (Token, error)
+	AuthUser(model.Username, model.Password) (Token, error)
 	AuthToken(Token) (model.Username, error)
 }
 
 type PasswordHasher interface {
-	HashPassword(model.Password) (model.Hash, error)
-	VerifyPassword(model.Password, model.Hash) error
+	HashPassword(model.Password) (model.PasswordHash, error)
+	VerifyPassword(model.Password, model.PasswordHash) error
 }
 
 type TokenAuth interface {
@@ -34,14 +34,14 @@ type authService struct {
 	auth   TokenAuth
 }
 
-func (s *authService) AuthUser(uc model.UserCreds) (Token, error) {
-	passwdHash, err := s.hasher.HashPassword(uc.Password)
+func (s *authService) AuthUser(username model.Username, passwd model.Password) (Token, error) {
+	passwdHash, err := s.hasher.HashPassword(passwd)
 	if err != nil {
 		return "", fmt.Errorf("password hashing: %w", err)
 	}
 
 	u, err := s.users.PutUser(&model.User{
-		Username:     uc.Username,
+		Username:     username,
 		PasswordHash: passwdHash,
 	})
 
@@ -49,7 +49,7 @@ func (s *authService) AuthUser(uc model.UserCreds) (Token, error) {
 		return "", fmt.Errorf("accessing user storage: %w", err)
 	}
 
-	if err := s.hasher.VerifyPassword(uc.Password, u.PasswordHash); err != nil {
+	if err := s.hasher.VerifyPassword(passwd, u.PasswordHash); err != nil {
 		if errors.Is(err, model.ErrAuthFail) {
 			return "", model.ErrAuthFail
 		}

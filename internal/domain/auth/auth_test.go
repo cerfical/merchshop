@@ -31,7 +31,7 @@ func (t *AuthServiceTest) SetupSubTest() {
 func (t *AuthServiceTest) TestAuthUser() {
 	user := model.User{
 		Username:     "testuser",
-		PasswordHash: model.Hash("321"),
+		PasswordHash: model.PasswordHash("321"),
 	}
 
 	tests := []struct {
@@ -52,8 +52,8 @@ func (t *AuthServiceTest) TestAuthUser() {
 			Setup: func() {
 				e := t.hasher.EXPECT()
 				e.HashPassword(model.Password("123")).
-					Return(model.Hash("321"), nil)
-				e.VerifyPassword(model.Password("123"), model.Hash("321")).
+					Return(model.PasswordHash("321"), nil)
+				e.VerifyPassword(model.Password("123"), model.PasswordHash("321")).
 					Return(nil)
 
 				t.users.EXPECT().
@@ -76,14 +76,14 @@ func (t *AuthServiceTest) TestAuthUser() {
 			Setup: func() {
 				e := t.hasher.EXPECT()
 				e.HashPassword(model.Password("124")).
-					Return(model.Hash("421"), nil)
-				e.VerifyPassword(model.Password("124"), model.Hash("321")).
+					Return(model.PasswordHash("421"), nil)
+				e.VerifyPassword(model.Password("124"), model.PasswordHash("321")).
 					Return(model.ErrAuthFail)
 
 				t.users.EXPECT().
 					PutUser(&model.User{
 						Username:     "testuser",
-						PasswordHash: model.Hash("421"),
+						PasswordHash: model.PasswordHash("421"),
 					}).
 					Return(&user, nil)
 			},
@@ -98,10 +98,7 @@ func (t *AuthServiceTest) TestAuthUser() {
 			test.Setup()
 
 			service := auth.NewAuthService(t.auth, t.users, t.hasher)
-			token, err := service.AuthUser(model.UserCreds{
-				Username: test.Username,
-				Password: test.Password,
-			})
+			token, err := service.AuthUser(test.Username, test.Password)
 
 			test.Err(t.T(), err)
 			t.Equal(test.Token, token)

@@ -78,9 +78,9 @@ func (_c *AuthService_AuthToken_Call) RunAndReturn(run func(auth.Token) (model.U
 	return _c
 }
 
-// AuthUser provides a mock function with given fields: _a0
-func (_m *AuthService) AuthUser(_a0 model.UserCreds) (auth.Token, error) {
-	ret := _m.Called(_a0)
+// AuthUser provides a mock function with given fields: _a0, _a1
+func (_m *AuthService) AuthUser(_a0 model.Username, _a1 model.Password) (auth.Token, error) {
+	ret := _m.Called(_a0, _a1)
 
 	if len(ret) == 0 {
 		panic("no return value specified for AuthUser")
@@ -88,17 +88,17 @@ func (_m *AuthService) AuthUser(_a0 model.UserCreds) (auth.Token, error) {
 
 	var r0 auth.Token
 	var r1 error
-	if rf, ok := ret.Get(0).(func(model.UserCreds) (auth.Token, error)); ok {
-		return rf(_a0)
+	if rf, ok := ret.Get(0).(func(model.Username, model.Password) (auth.Token, error)); ok {
+		return rf(_a0, _a1)
 	}
-	if rf, ok := ret.Get(0).(func(model.UserCreds) auth.Token); ok {
-		r0 = rf(_a0)
+	if rf, ok := ret.Get(0).(func(model.Username, model.Password) auth.Token); ok {
+		r0 = rf(_a0, _a1)
 	} else {
 		r0 = ret.Get(0).(auth.Token)
 	}
 
-	if rf, ok := ret.Get(1).(func(model.UserCreds) error); ok {
-		r1 = rf(_a0)
+	if rf, ok := ret.Get(1).(func(model.Username, model.Password) error); ok {
+		r1 = rf(_a0, _a1)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -112,14 +112,15 @@ type AuthService_AuthUser_Call struct {
 }
 
 // AuthUser is a helper method to define mock.On call
-//   - _a0 model.UserCreds
-func (_e *AuthService_Expecter) AuthUser(_a0 interface{}) *AuthService_AuthUser_Call {
-	return &AuthService_AuthUser_Call{Call: _e.mock.On("AuthUser", _a0)}
+//   - _a0 model.Username
+//   - _a1 model.Password
+func (_e *AuthService_Expecter) AuthUser(_a0 interface{}, _a1 interface{}) *AuthService_AuthUser_Call {
+	return &AuthService_AuthUser_Call{Call: _e.mock.On("AuthUser", _a0, _a1)}
 }
 
-func (_c *AuthService_AuthUser_Call) Run(run func(_a0 model.UserCreds)) *AuthService_AuthUser_Call {
+func (_c *AuthService_AuthUser_Call) Run(run func(_a0 model.Username, _a1 model.Password)) *AuthService_AuthUser_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(model.UserCreds))
+		run(args[0].(model.Username), args[1].(model.Password))
 	})
 	return _c
 }
@@ -129,7 +130,7 @@ func (_c *AuthService_AuthUser_Call) Return(_a0 auth.Token, _a1 error) *AuthServ
 	return _c
 }
 
-func (_c *AuthService_AuthUser_Call) RunAndReturn(run func(model.UserCreds) (auth.Token, error)) *AuthService_AuthUser_Call {
+func (_c *AuthService_AuthUser_Call) RunAndReturn(run func(model.Username, model.Password) (auth.Token, error)) *AuthService_AuthUser_Call {
 	_c.Call.Return(run)
 	return _c
 }

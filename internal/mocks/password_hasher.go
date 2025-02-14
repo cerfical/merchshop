@@ -21,23 +21,23 @@ func (_m *PasswordHasher) EXPECT() *PasswordHasher_Expecter {
 }
 
 // HashPassword provides a mock function with given fields: _a0
-func (_m *PasswordHasher) HashPassword(_a0 model.Password) (model.Hash, error) {
+func (_m *PasswordHasher) HashPassword(_a0 model.Password) (model.PasswordHash, error) {
 	ret := _m.Called(_a0)
 
 	if len(ret) == 0 {
 		panic("no return value specified for HashPassword")
 	}
 
-	var r0 model.Hash
+	var r0 model.PasswordHash
 	var r1 error
-	if rf, ok := ret.Get(0).(func(model.Password) (model.Hash, error)); ok {
+	if rf, ok := ret.Get(0).(func(model.Password) (model.PasswordHash, error)); ok {
 		return rf(_a0)
 	}
-	if rf, ok := ret.Get(0).(func(model.Password) model.Hash); ok {
+	if rf, ok := ret.Get(0).(func(model.Password) model.PasswordHash); ok {
 		r0 = rf(_a0)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(model.Hash)
+			r0 = ret.Get(0).(model.PasswordHash)
 		}
 	}
 
@@ -68,18 +68,18 @@ func (_c *PasswordHasher_HashPassword_Call) Run(run func(_a0 model.Password)) *P
 	return _c
 }
 
-func (_c *PasswordHasher_HashPassword_Call) Return(_a0 model.Hash, _a1 error) *PasswordHasher_HashPassword_Call {
+func (_c *PasswordHasher_HashPassword_Call) Return(_a0 model.PasswordHash, _a1 error) *PasswordHasher_HashPassword_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *PasswordHasher_HashPassword_Call) RunAndReturn(run func(model.Password) (model.Hash, error)) *PasswordHasher_HashPassword_Call {
+func (_c *PasswordHasher_HashPassword_Call) RunAndReturn(run func(model.Password) (model.PasswordHash, error)) *PasswordHasher_HashPassword_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
 // VerifyPassword provides a mock function with given fields: _a0, _a1
-func (_m *PasswordHasher) VerifyPassword(_a0 model.Password, _a1 model.Hash) error {
+func (_m *PasswordHasher) VerifyPassword(_a0 model.Password, _a1 model.PasswordHash) error {
 	ret := _m.Called(_a0, _a1)
 
 	if len(ret) == 0 {
@@ -87,7 +87,7 @@ func (_m *PasswordHasher) VerifyPassword(_a0 model.Password, _a1 model.Hash) err
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(model.Password, model.Hash) error); ok {
+	if rf, ok := ret.Get(0).(func(model.Password, model.PasswordHash) error); ok {
 		r0 = rf(_a0, _a1)
 	} else {
 		r0 = ret.Error(0)
@@ -103,14 +103,14 @@ type PasswordHasher_VerifyPassword_Call struct {
 
 // VerifyPassword is a helper method to define mock.On call
 //   - _a0 model.Password
-//   - _a1 model.Hash
+//   - _a1 model.PasswordHash
 func (_e *PasswordHasher_Expecter) VerifyPassword(_a0 interface{}, _a1 interface{}) *PasswordHasher_VerifyPassword_Call {
 	return &PasswordHasher_VerifyPassword_Call{Call: _e.mock.On("VerifyPassword", _a0, _a1)}
 }
 
-func (_c *PasswordHasher_VerifyPassword_Call) Run(run func(_a0 model.Password, _a1 model.Hash)) *PasswordHasher_VerifyPassword_Call {
+func (_c *PasswordHasher_VerifyPassword_Call) Run(run func(_a0 model.Password, _a1 model.PasswordHash)) *PasswordHasher_VerifyPassword_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(model.Password), args[1].(model.Hash))
+		run(args[0].(model.Password), args[1].(model.PasswordHash))
 	})
 	return _c
 }
@@ -120,7 +120,7 @@ func (_c *PasswordHasher_VerifyPassword_Call) Return(_a0 error) *PasswordHasher_
 	return _c
 }
 
-func (_c *PasswordHasher_VerifyPassword_Call) RunAndReturn(run func(model.Password, model.Hash) error) *PasswordHasher_VerifyPassword_Call {
+func (_c *PasswordHasher_VerifyPassword_Call) RunAndReturn(run func(model.Password, model.PasswordHash) error) *PasswordHasher_VerifyPassword_Call {
 	_c.Call.Return(run)
 	return _c
 }

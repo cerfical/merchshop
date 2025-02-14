@@ -23,13 +23,19 @@ func (h *authHandler) authUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	uc, err := model.NewUserCreds(authReq.Username, authReq.Password)
+	username, err := model.NewUsername(authReq.Username)
 	if err != nil {
-		badRequestHandler(fmt.Sprintf("The provided credentials are invalid: %v", err))(w, r)
+		badRequestHandler(fmt.Sprintf("The provided username is invalid: %v", err))(w, r)
 		return
 	}
 
-	token, err := h.authService.AuthUser(uc)
+	passwd, err := model.NewPassword(authReq.Password)
+	if err != nil {
+		badRequestHandler(fmt.Sprintf("The provided password is invalid: %v", err))(w, r)
+		return
+	}
+
+	token, err := h.authService.AuthUser(username, passwd)
 	if err != nil {
 		if errors.Is(err, model.ErrAuthFail) {
 			unauthorizedHandler("The provided credentials are invalid")(w, r)
