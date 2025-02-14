@@ -62,7 +62,7 @@ func (t *CoinServiceTest) TestGetUserCoinBalance() {
 					Return(nil, model.ErrUserNotExist)
 			},
 			Err: func(t assert.TestingT, err error, args ...any) bool {
-				return assert.Error(t, model.ErrUserNotExist, args...)
+				return assert.ErrorIs(t, err, model.ErrUserNotExist, args...)
 			},
 		},
 	}
