@@ -15,13 +15,13 @@ func tokenAuth(a auth.AuthService) func(http.HandlerFunc) http.HandlerFunc {
 			// Validate the Authorization header
 			s := strings.Split(r.Header.Get("Authorization"), " ")
 			if len(s) != 2 || s[0] != "Bearer" {
-				unauthorized(w, "The provided authentication method is invalid")
+				unauthorizedHandler("The provided authentication method is invalid")(w, r)
 				return
 			}
 
 			user, err := a.AuthToken(auth.Token(s[1]))
 			if err != nil {
-				unauthorized(w, "The provided token is invalid")
+				unauthorizedHandler("The provided token is invalid")(w, r)
 				return
 			}
 
@@ -29,11 +29,6 @@ func tokenAuth(a auth.AuthService) func(http.HandlerFunc) http.HandlerFunc {
 			next(w, rr)
 		}
 	}
-}
-
-func unauthorized(w http.ResponseWriter, msg string) {
-	w.Header().Set("WWW-Authenticate", "Bearer")
-	writeErrorResponse(w, http.StatusUnauthorized, msg)
 }
 
 func contextWithUsername(ctx context.Context, un model.Username) context.Context {

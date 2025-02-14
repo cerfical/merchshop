@@ -19,35 +19,28 @@ func (h *authHandler) authUser(w http.ResponseWriter, r *http.Request) {
 	authReq, err := readRequest[authRequest](r.Body)
 	if err != nil {
 		// TODO: More descriptive error messages?
-		writeErrorResponse(w, http.StatusBadRequest, "The request body is malformed")
+		badRequestHandler("The request body is malformed")(w, r)
 		return
 	}
 
 	uc, err := model.NewUserCreds(authReq.Username, authReq.Password)
 	if err != nil {
-		writeErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("The provided credentials are invalid: %v", err))
+		badRequestHandler(fmt.Sprintf("The provided credentials are invalid: %v", err))(w, r)
 		return
 	}
 
 	token, err := h.authService.AuthUser(uc)
 	if err != nil {
 		if errors.Is(err, model.ErrAuthFail) {
-			writeErrorResponse(w, http.StatusUnauthorized, "The provided credentials are invalid")
+			unauthorizedHandler("The provided credentials are invalid")(w, r)
 		} else {
-			h.log.Error("User authentication failed", err)
-			writeErrorResponse(w, http.StatusInternalServerError, "Internal server error")
+			internalErrorHandler(h.log, "User authentication failed", err)(w, r)
 		}
 		return
 	}
 
 	writeResponse(w, http.StatusOK, authResponse{
 		Token: string(token),
-	})
-}
-
-func writeErrorResponse(w http.ResponseWriter, status int, msg string) {
-	writeResponse(w, status, errorResponse{
-		Errors: msg,
 	})
 }
 
@@ -58,8 +51,4 @@ type authRequest struct {
 
 type authResponse struct {
 	Token string `json:"token"`
-}
-
-type errorResponse struct {
-	Errors string `json:"errors"`
 }
