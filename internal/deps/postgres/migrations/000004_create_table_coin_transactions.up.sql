@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS coin_transactions(
+CREATE TABLE coin_transactions(
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     from_user_id INT NOT NULL REFERENCES users(id),
     to_user_id INT NOT NULL REFERENCES users(id),
