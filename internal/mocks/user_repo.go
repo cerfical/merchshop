@@ -20,6 +20,66 @@ func (_m *UserRepo) EXPECT() *UserRepo_Expecter {
 	return &UserRepo_Expecter{mock: &_m.Mock}
 }
 
+// CreateUser provides a mock function with given fields: _a0, _a1, _a2
+func (_m *UserRepo) CreateUser(_a0 model.Username, _a1 model.PasswordHash, _a2 model.NumCoins) (*model.User, error) {
+	ret := _m.Called(_a0, _a1, _a2)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateUser")
+	}
+
+	var r0 *model.User
+	var r1 error
+	if rf, ok := ret.Get(0).(func(model.Username, model.PasswordHash, model.NumCoins) (*model.User, error)); ok {
+		return rf(_a0, _a1, _a2)
+	}
+	if rf, ok := ret.Get(0).(func(model.Username, model.PasswordHash, model.NumCoins) *model.User); ok {
+		r0 = rf(_a0, _a1, _a2)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.User)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(model.Username, model.PasswordHash, model.NumCoins) error); ok {
+		r1 = rf(_a0, _a1, _a2)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// UserRepo_CreateUser_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateUser'
+type UserRepo_CreateUser_Call struct {
+	*mock.Call
+}
+
+// CreateUser is a helper method to define mock.On call
+//   - _a0 model.Username
+//   - _a1 model.PasswordHash
+//   - _a2 model.NumCoins
+func (_e *UserRepo_Expecter) CreateUser(_a0 interface{}, _a1 interface{}, _a2 interface{}) *UserRepo_CreateUser_Call {
+	return &UserRepo_CreateUser_Call{Call: _e.mock.On("CreateUser", _a0, _a1, _a2)}
+}
+
+func (_c *UserRepo_CreateUser_Call) Run(run func(_a0 model.Username, _a1 model.PasswordHash, _a2 model.NumCoins)) *UserRepo_CreateUser_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(model.Username), args[1].(model.PasswordHash), args[2].(model.NumCoins))
+	})
+	return _c
+}
+
+func (_c *UserRepo_CreateUser_Call) Return(_a0 *model.User, _a1 error) *UserRepo_CreateUser_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *UserRepo_CreateUser_Call) RunAndReturn(run func(model.Username, model.PasswordHash, model.NumCoins) (*model.User, error)) *UserRepo_CreateUser_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetUserByUsername provides a mock function with given fields: _a0
 func (_m *UserRepo) GetUserByUsername(_a0 model.Username) (*model.User, error) {
 	ret := _m.Called(_a0)
@@ -74,64 +134,6 @@ func (_c *UserRepo_GetUserByUsername_Call) Return(_a0 *model.User, _a1 error) *U
 }
 
 func (_c *UserRepo_GetUserByUsername_Call) RunAndReturn(run func(model.Username) (*model.User, error)) *UserRepo_GetUserByUsername_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// PutUser provides a mock function with given fields: _a0
-func (_m *UserRepo) PutUser(_a0 *model.User) (*model.User, error) {
-	ret := _m.Called(_a0)
-
-	if len(ret) == 0 {
-		panic("no return value specified for PutUser")
-	}
-
-	var r0 *model.User
-	var r1 error
-	if rf, ok := ret.Get(0).(func(*model.User) (*model.User, error)); ok {
-		return rf(_a0)
-	}
-	if rf, ok := ret.Get(0).(func(*model.User) *model.User); ok {
-		r0 = rf(_a0)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*model.User)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(*model.User) error); ok {
-		r1 = rf(_a0)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// UserRepo_PutUser_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PutUser'
-type UserRepo_PutUser_Call struct {
-	*mock.Call
-}
-
-// PutUser is a helper method to define mock.On call
-//   - _a0 *model.User
-func (_e *UserRepo_Expecter) PutUser(_a0 interface{}) *UserRepo_PutUser_Call {
-	return &UserRepo_PutUser_Call{Call: _e.mock.On("PutUser", _a0)}
-}
-
-func (_c *UserRepo_PutUser_Call) Run(run func(_a0 *model.User)) *UserRepo_PutUser_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*model.User))
-	})
-	return _c
-}
-
-func (_c *UserRepo_PutUser_Call) Return(_a0 *model.User, _a1 error) *UserRepo_PutUser_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *UserRepo_PutUser_Call) RunAndReturn(run func(*model.User) (*model.User, error)) *UserRepo_PutUser_Call {
 	_c.Call.Return(run)
 	return _c
 }

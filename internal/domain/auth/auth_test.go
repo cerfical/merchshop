@@ -29,10 +29,13 @@ func (t *AuthServiceTest) SetupSubTest() {
 }
 
 func (t *AuthServiceTest) TestAuthUser() {
-	user := model.User{
+	users := []model.User{{
 		Username:     "test_user",
 		PasswordHash: model.PasswordHash("321"),
-	}
+	}, {
+		Username:     "new_test_user",
+		PasswordHash: model.PasswordHash("421"),
+	}}
 
 	tests := []struct {
 		Name     string
@@ -57,12 +60,38 @@ func (t *AuthServiceTest) TestAuthUser() {
 					Return(nil)
 
 				t.users.EXPECT().
-					PutUser(&user).
-					Return(&user, nil)
+					GetUserByUsername(model.Username("test_user")).
+					Return(&users[0], nil)
 
 				t.auth.EXPECT().
-					IssueToken(user.Username).
+					IssueToken(model.Username("test_user")).
 					Return("123321", nil)
+			},
+			Err: assert.NoError,
+		},
+
+		{
+			Name:     "new_user",
+			Username: "new_test_user",
+			Password: "124",
+			Token:    "124421",
+
+			Setup: func() {
+				he := t.hasher.EXPECT()
+				he.HashPassword(model.Password("124")).
+					Return(model.PasswordHash("421"), nil)
+				he.VerifyPassword(model.Password("124"), model.PasswordHash("421")).
+					Return(nil)
+
+				ue := t.users.EXPECT()
+				ue.GetUserByUsername(model.Username("new_test_user")).
+					Return(nil, model.ErrUserNotExist)
+				ue.CreateUser(model.Username("new_test_user"), model.PasswordHash("421"), model.NumCoins(1000)).
+					Return(&users[1], nil)
+
+				t.auth.EXPECT().
+					IssueToken(model.Username("new_test_user")).
+					Return("124421", nil)
 			},
 			Err: assert.NoError,
 		},
@@ -81,11 +110,8 @@ func (t *AuthServiceTest) TestAuthUser() {
 					Return(model.ErrAuthFail)
 
 				t.users.EXPECT().
-					PutUser(&model.User{
-						Username:     "test_user",
-						PasswordHash: model.PasswordHash("bad_321"),
-					}).
-					Return(&user, nil)
+					GetUserByUsername(model.Username("test_user")).
+					Return(&users[0], nil)
 			},
 			Err: func(t assert.TestingT, err error, args ...any) bool {
 				return assert.Error(t, model.ErrAuthFail, args...)

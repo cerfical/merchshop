@@ -92,23 +92,29 @@ func (s *Storage) migrate(f func(*migrate.Migrate) error) error {
 	return nil
 }
 
-func (s *Storage) PutUser(u *model.User) (*model.User, error) {
-	// TODO: Unnecessary update?
+func (s *Storage) CreateUser(un model.Username, passwd model.PasswordHash, coins model.NumCoins) (*model.User, error) {
 	row := s.db.QueryRow(`
 			INSERT INTO users(username, password_hash)
 			VALUES ($1, $2)
-			ON CONFLICT (username) DO UPDATE
-				SET username=EXCLUDED.username
-			RETURNING *`,
-		u.Username,
-		u.PasswordHash,
+			ON CONFLICT (username) DO NOTHING
+			RETURNING id`,
+		un, passwd,
 	)
 
-	var uu model.User
-	if err := row.Scan(&uu.ID, &uu.Username, &uu.PasswordHash, &uu.Coins); err != nil {
+	u := model.User{
+		Username:     un,
+		PasswordHash: passwd,
+		Coins:        coins,
+	}
+
+	if err := row.Scan(&u.ID); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, model.ErrUserExist
+		}
 		return nil, err
 	}
-	return &uu, nil
+
+	return &u, nil
 }
 
 func (s *Storage) GetUserByUsername(un model.Username) (*model.User, error) {
