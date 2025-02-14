@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/cerfical/merchshop/internal/api"
-	"github.com/cerfical/merchshop/internal/domain/auth"
-	"github.com/cerfical/merchshop/internal/domain/model"
 	"github.com/cerfical/merchshop/internal/mocks"
+	"github.com/cerfical/merchshop/internal/service/auth"
+	"github.com/cerfical/merchshop/internal/service/model"
 	"github.com/gavv/httpexpect/v2"
 	"github.com/stretchr/testify/suite"
 )

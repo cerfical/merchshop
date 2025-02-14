@@ -6,9 +6,9 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/cerfical/merchshop/internal/deps/jwt"
+	"github.com/cerfical/merchshop/internal/deps/postgres"
 	"github.com/cerfical/merchshop/internal/httpserv"
-	"github.com/cerfical/merchshop/internal/infrastructure/jwt"
-	"github.com/cerfical/merchshop/internal/infrastructure/postgres"
 	"github.com/cerfical/merchshop/internal/log"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"

@@ -3,9 +3,9 @@ package api
 import (
 	"net/http"
 
-	"github.com/cerfical/merchshop/internal/domain/auth"
-	"github.com/cerfical/merchshop/internal/domain/coins"
 	"github.com/cerfical/merchshop/internal/log"
+	"github.com/cerfical/merchshop/internal/service/auth"
+	"github.com/cerfical/merchshop/internal/service/coins"
 )
 
 func NewHandler(auth auth.AuthService, coins coins.CoinService, log *log.Logger) http.Handler {

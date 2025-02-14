@@ -4,8 +4,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/cerfical/merchshop/internal/domain/auth"
-	"github.com/cerfical/merchshop/internal/domain/model"
+	"github.com/cerfical/merchshop/internal/service/auth"
+	"github.com/cerfical/merchshop/internal/service/model"
 	"github.com/golang-jwt/jwt/v5"
 )
 

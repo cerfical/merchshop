@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/cerfical/merchshop/internal/domain/coins"
-	"github.com/cerfical/merchshop/internal/domain/model"
 	"github.com/cerfical/merchshop/internal/log"
+	"github.com/cerfical/merchshop/internal/service/coins"
+	"github.com/cerfical/merchshop/internal/service/model"
 )
 
 type coinsHandler struct {

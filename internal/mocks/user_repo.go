@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	model "github.com/cerfical/merchshop/internal/domain/model"
+	model "github.com/cerfical/merchshop/internal/service/model"
 	mock "github.com/stretchr/testify/mock"
 )
 

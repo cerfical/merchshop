@@ -6,13 +6,13 @@ import (
 
 	"github.com/cerfical/merchshop/internal/api"
 	"github.com/cerfical/merchshop/internal/config"
-	"github.com/cerfical/merchshop/internal/domain/auth"
-	"github.com/cerfical/merchshop/internal/domain/coins"
+	"github.com/cerfical/merchshop/internal/deps/bcrypt"
+	"github.com/cerfical/merchshop/internal/deps/jwt"
+	"github.com/cerfical/merchshop/internal/deps/postgres"
 	"github.com/cerfical/merchshop/internal/httpserv"
-	"github.com/cerfical/merchshop/internal/infrastructure/bcrypt"
-	"github.com/cerfical/merchshop/internal/infrastructure/jwt"
-	"github.com/cerfical/merchshop/internal/infrastructure/postgres"
 	"github.com/cerfical/merchshop/internal/log"
+	"github.com/cerfical/merchshop/internal/service/auth"
+	"github.com/cerfical/merchshop/internal/service/coins"
 )
 
 func main() {

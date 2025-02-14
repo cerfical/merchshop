@@ -3,9 +3,9 @@ package coins_test
 import (
 	"testing"
 
-	"github.com/cerfical/merchshop/internal/domain/coins"
-	"github.com/cerfical/merchshop/internal/domain/model"
 	"github.com/cerfical/merchshop/internal/mocks"
+	"github.com/cerfical/merchshop/internal/service/coins"
+	"github.com/cerfical/merchshop/internal/service/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"

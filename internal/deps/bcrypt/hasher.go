@@ -3,7 +3,7 @@ package bcrypt
 import (
 	"errors"
 
-	"github.com/cerfical/merchshop/internal/domain/model"
+	"github.com/cerfical/merchshop/internal/service/model"
 	"golang.org/x/crypto/bcrypt"
 )
 

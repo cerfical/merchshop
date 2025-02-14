@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/cerfical/merchshop/internal/domain/model"
+	"github.com/cerfical/merchshop/internal/service/model"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"

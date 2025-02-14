@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/cerfical/merchshop/internal/domain/model"
+	"github.com/cerfical/merchshop/internal/service/model"
 )
 
 const (
