@@ -16,6 +16,7 @@ type coinsHandler struct {
 }
 
 func (h *coinsHandler) info(w http.ResponseWriter, r *http.Request) {
+	// TODO: The assumption is that the username provided refers to an existing user
 	user := usernameFromContext(r.Context())
 	coins, err := h.coinService.GetCoinBalance(user)
 	if err != nil {

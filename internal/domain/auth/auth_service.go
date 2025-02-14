@@ -1,15 +1,10 @@
 package auth
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/cerfical/merchshop/internal/domain/model"
 )
-
-func NewAuthService(auth TokenAuth, users model.UserRepo, hasher PasswordHasher) AuthService {
-	return &authService{users, hasher, auth}
-}
 
 type Token string
 
@@ -37,7 +32,7 @@ type authService struct {
 func (s *authService) AuthUser(username model.Username, passwd model.Password) (Token, error) {
 	passwdHash, err := s.hasher.HashPassword(passwd)
 	if err != nil {
-		return "", fmt.Errorf("password hashing: %w", err)
+		return "", fmt.Errorf("hash password: %w", err)
 	}
 
 	u, err := s.users.PutUser(&model.User{
@@ -46,19 +41,16 @@ func (s *authService) AuthUser(username model.Username, passwd model.Password) (
 	})
 
 	if err != nil {
-		return "", fmt.Errorf("accessing user storage: %w", err)
+		return "", fmt.Errorf("read user data: %w", err)
 	}
 
 	if err := s.hasher.VerifyPassword(passwd, u.PasswordHash); err != nil {
-		if errors.Is(err, model.ErrAuthFail) {
-			return "", model.ErrAuthFail
-		}
-		return "", fmt.Errorf("password verification: %w", err)
+		return "", fmt.Errorf("verify password: %w", err)
 	}
 
 	token, err := s.auth.IssueToken(u.Username)
 	if err != nil {
-		return "", fmt.Errorf("token generation: %w", err)
+		return "", fmt.Errorf("generate token: %w", err)
 	}
 
 	return token, nil
@@ -66,4 +58,8 @@ func (s *authService) AuthUser(username model.Username, passwd model.Password) (
 
 func (s *authService) AuthToken(token Token) (model.Username, error) {
 	return s.auth.AuthToken(token)
+}
+
+func NewAuthService(auth TokenAuth, users model.UserRepo, hasher PasswordHasher) AuthService {
+	return &authService{users, hasher, auth}
 }

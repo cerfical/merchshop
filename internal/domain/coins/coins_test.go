@@ -41,7 +41,7 @@ func (t *CoinServiceTest) TestGetUserCoinBalance() {
 		Err   assert.ErrorAssertionFunc
 	}{
 		{
-			Name:     "existing_user_ok",
+			Name:     "existing_user",
 			Username: "test_user",
 			Coins:    9,
 
@@ -54,7 +54,7 @@ func (t *CoinServiceTest) TestGetUserCoinBalance() {
 		},
 
 		{
-			Name:     "unknown_user_fail",
+			Name:     "user_not_found",
 			Username: "bad_test_user",
 
 			Setup: func() {
@@ -82,17 +82,15 @@ func (t *CoinServiceTest) TestGetUserCoinBalance() {
 }
 
 func (t *CoinServiceTest) TestSendCoins() {
-	users := []model.User{
-		{
-			ID:       0,
-			Username: "test_sender",
-			Coins:    9,
-		}, {
-			ID:       1,
-			Username: "test_recipient",
-			Coins:    9,
-		},
-	}
+	users := []model.User{{
+		ID:       0,
+		Username: "test_sender",
+		Coins:    9,
+	}, {
+		ID:       1,
+		Username: "test_recipient",
+		Coins:    9,
+	}}
 
 	tests := []struct {
 		Name string

@@ -30,7 +30,7 @@ func (t *AuthServiceTest) SetupSubTest() {
 
 func (t *AuthServiceTest) TestAuthUser() {
 	user := model.User{
-		Username:     "testuser",
+		Username:     "test_user",
 		PasswordHash: model.PasswordHash("321"),
 	}
 
@@ -44,8 +44,8 @@ func (t *AuthServiceTest) TestAuthUser() {
 		Err   assert.ErrorAssertionFunc
 	}{
 		{
-			Name:     "auth_ok",
-			Username: "testuser",
+			Name:     "ok",
+			Username: "test_user",
 			Password: "123",
 			Token:    "123321",
 
@@ -68,22 +68,22 @@ func (t *AuthServiceTest) TestAuthUser() {
 		},
 
 		{
-			Name:     "auth_fail",
-			Username: "testuser",
-			Password: "124",
+			Name:     "bad_password",
+			Username: "test_user",
+			Password: "bad_123",
 			Token:    "",
 
 			Setup: func() {
 				e := t.hasher.EXPECT()
-				e.HashPassword(model.Password("124")).
-					Return(model.PasswordHash("421"), nil)
-				e.VerifyPassword(model.Password("124"), model.PasswordHash("321")).
+				e.HashPassword(model.Password("bad_123")).
+					Return(model.PasswordHash("bad_321"), nil)
+				e.VerifyPassword(model.Password("bad_123"), model.PasswordHash("321")).
 					Return(model.ErrAuthFail)
 
 				t.users.EXPECT().
 					PutUser(&model.User{
-						Username:     "testuser",
-						PasswordHash: model.PasswordHash("421"),
+						Username:     "test_user",
+						PasswordHash: model.PasswordHash("bad_321"),
 					}).
 					Return(&user, nil)
 			},
