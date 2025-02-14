@@ -76,6 +76,54 @@ func (_c *CoinService_GetCoinBalance_Call) RunAndReturn(run func(model.Username)
 	return _c
 }
 
+// SendCoins provides a mock function with given fields: from, to, amount
+func (_m *CoinService) SendCoins(from model.Username, to model.Username, amount model.NumCoins) error {
+	ret := _m.Called(from, to, amount)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendCoins")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(model.Username, model.Username, model.NumCoins) error); ok {
+		r0 = rf(from, to, amount)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// CoinService_SendCoins_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SendCoins'
+type CoinService_SendCoins_Call struct {
+	*mock.Call
+}
+
+// SendCoins is a helper method to define mock.On call
+//   - from model.Username
+//   - to model.Username
+//   - amount model.NumCoins
+func (_e *CoinService_Expecter) SendCoins(from interface{}, to interface{}, amount interface{}) *CoinService_SendCoins_Call {
+	return &CoinService_SendCoins_Call{Call: _e.mock.On("SendCoins", from, to, amount)}
+}
+
+func (_c *CoinService_SendCoins_Call) Run(run func(from model.Username, to model.Username, amount model.NumCoins)) *CoinService_SendCoins_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(model.Username), args[1].(model.Username), args[2].(model.NumCoins))
+	})
+	return _c
+}
+
+func (_c *CoinService_SendCoins_Call) Return(_a0 error) *CoinService_SendCoins_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *CoinService_SendCoins_Call) RunAndReturn(run func(model.Username, model.Username, model.NumCoins) error) *CoinService_SendCoins_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewCoinService creates a new instance of CoinService. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewCoinService(t interface {

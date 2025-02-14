@@ -127,6 +127,62 @@ func (s *Storage) GetUserByUsername(un model.Username) (*model.User, error) {
 	return &u, nil
 }
 
+func (s *Storage) TransferCoins(from model.UserID, to model.UserID, amount model.NumCoins) (err error) {
+	// TODO: For now, assume that provided user ids are always valid and users cannot be deleted
+
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if txErr := tx.Rollback(); err == nil && txErr != nil && !errors.Is(txErr, sql.ErrTxDone) {
+			err = txErr
+		}
+	}()
+
+	// Withdraw coins from one user
+	res, err := tx.Exec(`
+			UPDATE users
+			SET coins = coins - $2
+			WHERE id = $1
+				AND coins >= $2`,
+		from, amount,
+	)
+
+	// Check if any rows were updated
+	n, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if n == 0 {
+		return model.ErrNotEnoughCoins
+	}
+
+	// Transfer the coins to another user
+	_, err = tx.Exec(`
+			UPDATE users
+			SET coins = coins + $2
+			WHERE id = $1`,
+		to, amount,
+	)
+	if err != nil {
+		return err
+	}
+
+	// Record the transfer transaction
+	_, err = tx.Exec(`
+			INSERT INTO coin_transactions(from_user_id, to_user_id, amount)
+			VALUES ($1, $2, $3)`,
+		from, to, amount,
+	)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
 func (s *Storage) Close() error {
 	return s.db.Close()
 }

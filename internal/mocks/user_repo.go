@@ -136,6 +136,54 @@ func (_c *UserRepo_PutUser_Call) RunAndReturn(run func(*model.User) (*model.User
 	return _c
 }
 
+// TransferCoins provides a mock function with given fields: from, to, amount
+func (_m *UserRepo) TransferCoins(from model.UserID, to model.UserID, amount model.NumCoins) error {
+	ret := _m.Called(from, to, amount)
+
+	if len(ret) == 0 {
+		panic("no return value specified for TransferCoins")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(model.UserID, model.UserID, model.NumCoins) error); ok {
+		r0 = rf(from, to, amount)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// UserRepo_TransferCoins_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'TransferCoins'
+type UserRepo_TransferCoins_Call struct {
+	*mock.Call
+}
+
+// TransferCoins is a helper method to define mock.On call
+//   - from model.UserID
+//   - to model.UserID
+//   - amount model.NumCoins
+func (_e *UserRepo_Expecter) TransferCoins(from interface{}, to interface{}, amount interface{}) *UserRepo_TransferCoins_Call {
+	return &UserRepo_TransferCoins_Call{Call: _e.mock.On("TransferCoins", from, to, amount)}
+}
+
+func (_c *UserRepo_TransferCoins_Call) Run(run func(from model.UserID, to model.UserID, amount model.NumCoins)) *UserRepo_TransferCoins_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(model.UserID), args[1].(model.UserID), args[2].(model.NumCoins))
+	})
+	return _c
+}
+
+func (_c *UserRepo_TransferCoins_Call) Return(_a0 error) *UserRepo_TransferCoins_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *UserRepo_TransferCoins_Call) RunAndReturn(run func(model.UserID, model.UserID, model.NumCoins) error) *UserRepo_TransferCoins_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewUserRepo creates a new instance of UserRepo. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewUserRepo(t interface {

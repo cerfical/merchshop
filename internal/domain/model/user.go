@@ -27,6 +27,11 @@ func NewPassword(s string) (Password, error) {
 	return Password(s), nil
 }
 
+func NewNumCoins(n int) (NumCoins, error) {
+	// TODO: Add validation
+	return NumCoins(n), nil
+}
+
 type User struct {
 	ID UserID
 
