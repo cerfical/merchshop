@@ -138,6 +138,53 @@ func (_c *UserRepo_GetUserByUsername_Call) RunAndReturn(run func(model.Username)
 	return _c
 }
 
+// PurchaseMerch provides a mock function with given fields: buyer, m
+func (_m *UserRepo) PurchaseMerch(buyer model.UserID, m *model.MerchItem) error {
+	ret := _m.Called(buyer, m)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PurchaseMerch")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(model.UserID, *model.MerchItem) error); ok {
+		r0 = rf(buyer, m)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// UserRepo_PurchaseMerch_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PurchaseMerch'
+type UserRepo_PurchaseMerch_Call struct {
+	*mock.Call
+}
+
+// PurchaseMerch is a helper method to define mock.On call
+//   - buyer model.UserID
+//   - m *model.MerchItem
+func (_e *UserRepo_Expecter) PurchaseMerch(buyer interface{}, m interface{}) *UserRepo_PurchaseMerch_Call {
+	return &UserRepo_PurchaseMerch_Call{Call: _e.mock.On("PurchaseMerch", buyer, m)}
+}
+
+func (_c *UserRepo_PurchaseMerch_Call) Run(run func(buyer model.UserID, m *model.MerchItem)) *UserRepo_PurchaseMerch_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(model.UserID), args[1].(*model.MerchItem))
+	})
+	return _c
+}
+
+func (_c *UserRepo_PurchaseMerch_Call) Return(_a0 error) *UserRepo_PurchaseMerch_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *UserRepo_PurchaseMerch_Call) RunAndReturn(run func(model.UserID, *model.MerchItem) error) *UserRepo_PurchaseMerch_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // TransferCoins provides a mock function with given fields: from, to, amount
 func (_m *UserRepo) TransferCoins(from model.UserID, to model.UserID, amount model.NumCoins) error {
 	ret := _m.Called(from, to, amount)

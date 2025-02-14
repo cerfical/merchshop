@@ -61,6 +61,26 @@ func (h *coinsHandler) sendCoin(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+func (h *coinsHandler) buyItem(w http.ResponseWriter, r *http.Request) {
+	merch, err := model.NewMerchItem(r.PathValue("item"))
+	if err != nil {
+		badRequestHandler(fmt.Sprintf("The requested merch is unavailable: %v", err))(w, r)
+		return
+	}
+
+	buyer := usernameFromContext(r.Context())
+	if err := h.coinService.BuyItem(buyer, merch); err != nil {
+		if modelErr := model.Error(""); errors.As(err, &modelErr) {
+			badRequestHandler(fmt.Sprintf("Couldn't complete the merch purchase: %v", modelErr))(w, r)
+		} else {
+			internalErrorHandler(h.log, "Failed to perform merch purchase", err)(w, r)
+		}
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
 type sendCoinRequest struct {
 	ToUser string `json:"toUser"`
 	Amount int    `json:"amount"`

@@ -8,6 +8,8 @@ const (
 	ErrNotEnoughCoins    = Error("insufficient funds")
 	ErrSenderNotExist    = Error("sender doesn't exist")
 	ErrRecipientNotExist = Error("recipient doesn't exist")
+
+	ErrMerchNotExist = Error("merch doesn't exist")
 )
 
 type Error string

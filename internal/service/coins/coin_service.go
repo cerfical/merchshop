@@ -14,6 +14,7 @@ func NewCoinService(users model.UserRepo) CoinService {
 type CoinService interface {
 	GetCoinBalance(model.Username) (model.NumCoins, error)
 	SendCoins(from model.Username, to model.Username, amount model.NumCoins) error
+	BuyItem(buyer model.Username, m *model.MerchItem) error
 }
 
 type coinService struct {
@@ -49,5 +50,17 @@ func (s *coinService) SendCoins(from model.Username, to model.Username, amount m
 		return fmt.Errorf("transfer coins: %w", err)
 	}
 
+	return nil
+}
+
+func (s *coinService) BuyItem(buyer model.Username, m *model.MerchItem) error {
+	buyerUser, err := s.users.GetUserByUsername(buyer)
+	if err != nil {
+		return fmt.Errorf("identify buyer: %w", err)
+	}
+
+	if err := s.users.PurchaseMerch(buyerUser.ID, m); err != nil {
+		return fmt.Errorf("purchase merch: %w", err)
+	}
 	return nil
 }

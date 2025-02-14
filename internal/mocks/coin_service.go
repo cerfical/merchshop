@@ -20,6 +20,53 @@ func (_m *CoinService) EXPECT() *CoinService_Expecter {
 	return &CoinService_Expecter{mock: &_m.Mock}
 }
 
+// BuyItem provides a mock function with given fields: buyer, m
+func (_m *CoinService) BuyItem(buyer model.Username, m *model.MerchItem) error {
+	ret := _m.Called(buyer, m)
+
+	if len(ret) == 0 {
+		panic("no return value specified for BuyItem")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(model.Username, *model.MerchItem) error); ok {
+		r0 = rf(buyer, m)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// CoinService_BuyItem_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'BuyItem'
+type CoinService_BuyItem_Call struct {
+	*mock.Call
+}
+
+// BuyItem is a helper method to define mock.On call
+//   - buyer model.Username
+//   - m *model.MerchItem
+func (_e *CoinService_Expecter) BuyItem(buyer interface{}, m interface{}) *CoinService_BuyItem_Call {
+	return &CoinService_BuyItem_Call{Call: _e.mock.On("BuyItem", buyer, m)}
+}
+
+func (_c *CoinService_BuyItem_Call) Run(run func(buyer model.Username, m *model.MerchItem)) *CoinService_BuyItem_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(model.Username), args[1].(*model.MerchItem))
+	})
+	return _c
+}
+
+func (_c *CoinService_BuyItem_Call) Return(_a0 error) *CoinService_BuyItem_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *CoinService_BuyItem_Call) RunAndReturn(run func(model.Username, *model.MerchItem) error) *CoinService_BuyItem_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetCoinBalance provides a mock function with given fields: _a0
 func (_m *CoinService) GetCoinBalance(_a0 model.Username) (model.NumCoins, error) {
 	ret := _m.Called(_a0)

@@ -189,6 +189,54 @@ func (s *Storage) TransferCoins(from model.UserID, to model.UserID, amount model
 	return tx.Commit()
 }
 
+func (s *Storage) PurchaseMerch(buyer model.UserID, m *model.MerchItem) (err error) {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if txErr := tx.Rollback(); err == nil && txErr != nil && !errors.Is(txErr, sql.ErrTxDone) {
+			err = txErr
+		}
+	}()
+
+	// Withdraw the amount of coins needed to purchase the item
+	res, err := tx.Exec(`
+			UPDATE users
+			SET coins = coins - $2
+			WHERE id = $1
+				AND coins >= $2`,
+		buyer, m.Price,
+	)
+	if err != nil {
+		return err
+	}
+
+	// Check if the purchase was successful, i.e. the user has the required amount of coins
+	n, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if n == 0 {
+		return model.ErrNotEnoughCoins
+	}
+
+	// Create a record for the item in the user's inventory
+	_, err = tx.Exec(`
+			INSERT INTO user_inventories(user_id, merch, quantity)
+			VALUES($1, $2, 1)
+			ON CONFLICT (user_id, merch) DO UPDATE
+			SET quantity = user_inventories.quantity + 1`,
+		buyer, m.Kind,
+	)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
 func (s *Storage) Close() error {
 	return s.db.Close()
 }
