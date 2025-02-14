@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/cerfical/merchshop/internal/service/model"
+	"github.com/cerfical/merchshop/internal/service/repo"
 )
 
 const (
@@ -29,7 +30,7 @@ type TokenAuth interface {
 }
 
 type authService struct {
-	users  model.UserRepo
+	users  repo.UserRepo
 	hasher PasswordHasher
 	auth   TokenAuth
 }
@@ -81,6 +82,6 @@ func (s *authService) AuthToken(token Token) (model.Username, error) {
 	return s.auth.AuthToken(token)
 }
 
-func NewAuthService(auth TokenAuth, users model.UserRepo, hasher PasswordHasher) AuthService {
+func NewAuthService(auth TokenAuth, users repo.UserRepo, hasher PasswordHasher) AuthService {
 	return &authService{users, hasher, auth}
 }

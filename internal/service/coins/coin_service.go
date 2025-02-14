@@ -5,9 +5,10 @@ import (
 	"fmt"
 
 	"github.com/cerfical/merchshop/internal/service/model"
+	"github.com/cerfical/merchshop/internal/service/repo"
 )
 
-func NewCoinService(users model.UserRepo) CoinService {
+func NewCoinService(users repo.UserRepo) CoinService {
 	return &coinService{users}
 }
 
@@ -18,7 +19,7 @@ type CoinService interface {
 }
 
 type coinService struct {
-	users model.UserRepo
+	users repo.UserRepo
 }
 
 func (s *coinService) GetCoinBalance(un model.Username) (model.NumCoins, error) {

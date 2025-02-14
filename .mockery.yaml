@@ -8,7 +8,7 @@ packages:
   github.com/cerfical/merchshop/internal/service/coins:
     interfaces:
       CoinService:
-  github.com/cerfical/merchshop/internal/service/model:
+  github.com/cerfical/merchshop/internal/service/repo:
     interfaces:
       UserRepo:
 
