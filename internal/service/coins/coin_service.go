@@ -31,6 +31,11 @@ func (s *coinService) GetCoinBalance(un model.Username) (model.NumCoins, error) 
 }
 
 func (s *coinService) SendCoins(from model.Username, to model.Username, amount model.NumCoins) error {
+	// Disallow coin transfers between the same user
+	if from == to {
+		return model.ErrSenderIsRecipient
+	}
+
 	fromUser, err := s.users.GetUser(from)
 	if err != nil {
 		if errors.Is(err, model.ErrUserNotExist) {

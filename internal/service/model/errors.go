@@ -8,6 +8,7 @@ const (
 	ErrNotEnoughCoins    = Error("insufficient coins")
 	ErrSenderNotExist    = Error("sender doesn't exist")
 	ErrRecipientNotExist = Error("recipient doesn't exist")
+	ErrSenderIsRecipient = Error("same sender and recipient")
 
 	ErrMerchNotExist = Error("merch doesn't exist")
 )
