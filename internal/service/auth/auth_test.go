@@ -60,7 +60,7 @@ func (t *AuthServiceTest) TestAuthUser() {
 					Return(nil)
 
 				t.users.EXPECT().
-					GetUserByUsername(model.Username("test_user")).
+					GetUser(model.Username("test_user")).
 					Return(&users[0], nil)
 
 				t.auth.EXPECT().
@@ -84,7 +84,7 @@ func (t *AuthServiceTest) TestAuthUser() {
 					Return(nil)
 
 				ue := t.users.EXPECT()
-				ue.GetUserByUsername(model.Username("new_test_user")).
+				ue.GetUser(model.Username("new_test_user")).
 					Return(nil, model.ErrUserNotExist)
 				ue.CreateUser(model.Username("new_test_user"), model.PasswordHash("421"), model.NumCoins(1000)).
 					Return(&users[1], nil)
@@ -110,7 +110,7 @@ func (t *AuthServiceTest) TestAuthUser() {
 					Return(model.ErrAuthFail)
 
 				t.users.EXPECT().
-					GetUserByUsername(model.Username("test_user")).
+					GetUser(model.Username("test_user")).
 					Return(&users[0], nil)
 			},
 			Err: func(t assert.TestingT, err error, args ...any) bool {

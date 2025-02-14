@@ -22,7 +22,7 @@ type coinService struct {
 }
 
 func (s *coinService) GetCoinBalance(un model.Username) (model.NumCoins, error) {
-	u, err := s.users.GetUserByUsername(un)
+	u, err := s.users.GetUser(un)
 	if err != nil {
 		return 0, fmt.Errorf("get user data: %w", err)
 	}
@@ -30,7 +30,7 @@ func (s *coinService) GetCoinBalance(un model.Username) (model.NumCoins, error) 
 }
 
 func (s *coinService) SendCoins(from model.Username, to model.Username, amount model.NumCoins) error {
-	fromUser, err := s.users.GetUserByUsername(from)
+	fromUser, err := s.users.GetUser(from)
 	if err != nil {
 		if errors.Is(err, model.ErrUserNotExist) {
 			return model.ErrSenderNotExist
@@ -38,7 +38,7 @@ func (s *coinService) SendCoins(from model.Username, to model.Username, amount m
 		return fmt.Errorf("identify sender: %w", err)
 	}
 
-	toUser, err := s.users.GetUserByUsername(to)
+	toUser, err := s.users.GetUser(to)
 	if err != nil {
 		if errors.Is(err, model.ErrUserNotExist) {
 			return model.ErrRecipientNotExist
@@ -54,7 +54,7 @@ func (s *coinService) SendCoins(from model.Username, to model.Username, amount m
 }
 
 func (s *coinService) BuyItem(buyer model.Username, m *model.MerchItem) error {
-	buyerUser, err := s.users.GetUserByUsername(buyer)
+	buyerUser, err := s.users.GetUser(buyer)
 	if err != nil {
 		return fmt.Errorf("identify buyer: %w", err)
 	}

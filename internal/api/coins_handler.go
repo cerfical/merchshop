@@ -17,7 +17,7 @@ type coinsHandler struct {
 
 func (h *coinsHandler) info(w http.ResponseWriter, r *http.Request) {
 	// TODO: The assumption is that the username provided refers to an existing user
-	user := usernameFromContext(r.Context())
+	user := userFromRequest(r)
 	coins, err := h.coinService.GetCoinBalance(user)
 	if err != nil {
 		return
@@ -48,7 +48,7 @@ func (h *coinsHandler) sendCoin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fromUser := usernameFromContext(r.Context())
+	fromUser := userFromRequest(r)
 	if err := h.coinService.SendCoins(fromUser, toUser, amount); err != nil {
 		if modelErr := model.Error(""); errors.As(err, &modelErr) {
 			badRequestHandler(fmt.Sprintf("Couldn't complete the coin transfer: %v", modelErr))(w, r)
@@ -68,7 +68,7 @@ func (h *coinsHandler) buyItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	buyer := usernameFromContext(r.Context())
+	buyer := userFromRequest(r)
 	if err := h.coinService.BuyItem(buyer, merch); err != nil {
 		if modelErr := model.Error(""); errors.As(err, &modelErr) {
 			badRequestHandler(fmt.Sprintf("Couldn't complete the merch purchase: %v", modelErr))(w, r)

@@ -47,7 +47,7 @@ func (t *CoinServiceTest) TestGetUserCoinBalance() {
 
 			Setup: func() {
 				t.users.EXPECT().
-					GetUserByUsername(model.Username("test_user")).
+					GetUser(model.Username("test_user")).
 					Return(&user, nil)
 			},
 			Err: assert.NoError,
@@ -59,7 +59,7 @@ func (t *CoinServiceTest) TestGetUserCoinBalance() {
 
 			Setup: func() {
 				t.users.EXPECT().
-					GetUserByUsername(model.Username("bad_test_user")).
+					GetUser(model.Username("bad_test_user")).
 					Return(nil, model.ErrUserNotExist)
 			},
 			Err: func(t assert.TestingT, err error, args ...any) bool {
@@ -110,9 +110,9 @@ func (t *CoinServiceTest) TestSendCoins() {
 
 			Setup: func() {
 				e := t.users.EXPECT()
-				e.GetUserByUsername(model.Username("test_sender")).
+				e.GetUser(model.Username("test_sender")).
 					Return(&users[0], nil)
-				e.GetUserByUsername(model.Username("test_recipient")).
+				e.GetUser(model.Username("test_recipient")).
 					Return(&users[1], nil)
 				e.TransferCoins(model.UserID(0), model.UserID(1), model.NumCoins(9)).
 					Return(nil)
@@ -128,9 +128,9 @@ func (t *CoinServiceTest) TestSendCoins() {
 
 			Setup: func() {
 				e := t.users.EXPECT()
-				e.GetUserByUsername(model.Username("bad_test_sender")).
+				e.GetUser(model.Username("bad_test_sender")).
 					Return(nil, model.ErrUserNotExist)
-				e.GetUserByUsername(mock.Anything).
+				e.GetUser(mock.Anything).
 					Return(&users[1], nil)
 			},
 			Err: func(t assert.TestingT, err error, args ...any) bool {
@@ -146,9 +146,9 @@ func (t *CoinServiceTest) TestSendCoins() {
 
 			Setup: func() {
 				e := t.users.EXPECT()
-				e.GetUserByUsername(model.Username("bad_test_recipient")).
+				e.GetUser(model.Username("bad_test_recipient")).
 					Return(nil, model.ErrUserNotExist)
-				e.GetUserByUsername(mock.Anything).
+				e.GetUser(mock.Anything).
 					Return(&users[1], nil)
 			},
 			Err: func(t assert.TestingT, err error, args ...any) bool {
@@ -164,9 +164,9 @@ func (t *CoinServiceTest) TestSendCoins() {
 
 			Setup: func() {
 				e := t.users.EXPECT()
-				e.GetUserByUsername(model.Username("test_sender")).
+				e.GetUser(model.Username("test_sender")).
 					Return(&users[0], nil)
-				e.GetUserByUsername(model.Username("test_recipient")).
+				e.GetUser(model.Username("test_recipient")).
 					Return(&users[1], nil)
 				e.TransferCoins(model.UserID(0), model.UserID(1), model.NumCoins(10)).
 					Return(model.ErrNotEnoughCoins)

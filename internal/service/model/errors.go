@@ -5,7 +5,7 @@ const (
 	ErrUserNotExist = Error("user doesn't exist")
 	ErrUserExist    = Error("user already exists")
 
-	ErrNotEnoughCoins    = Error("insufficient funds")
+	ErrNotEnoughCoins    = Error("insufficient coins")
 	ErrSenderNotExist    = Error("sender doesn't exist")
 	ErrRecipientNotExist = Error("recipient doesn't exist")
 

@@ -43,7 +43,7 @@ func (s *authService) AuthUser(username model.Username, passwd model.Password) (
 	// TODO: Think of a better solution? Limit the number of attempts?
 	var u *model.User
 	for {
-		u, err = s.users.GetUserByUsername(username)
+		u, err = s.users.GetUser(username)
 		if errors.Is(err, model.ErrUserNotExist) {
 			// Proceed to creating a new user
 			u, err = s.users.CreateUser(username, passwdHash, defaultCoinBalance)

@@ -25,18 +25,17 @@ func tokenAuth(a auth.AuthService) func(http.HandlerFunc) http.HandlerFunc {
 				return
 			}
 
-			rr := r.WithContext(contextWithUsername(r.Context(), user))
-			next(w, rr)
+			next(w, requestWithUser(r, user))
 		}
 	}
 }
 
-func contextWithUsername(ctx context.Context, un model.Username) context.Context {
-	return context.WithValue(ctx, userContextKey{}, un)
+func requestWithUser(r *http.Request, un model.Username) *http.Request {
+	return r.WithContext(context.WithValue(r.Context(), userContextKey{}, un))
 }
 
-func usernameFromContext(ctx context.Context) model.Username {
-	return ctx.Value(userContextKey{}).(model.Username)
+func userFromRequest(r *http.Request) model.Username {
+	return r.Context().Value(userContextKey{}).(model.Username)
 }
 
 type userContextKey struct{}

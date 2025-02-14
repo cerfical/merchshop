@@ -117,7 +117,7 @@ func (s *Storage) CreateUser(un model.Username, passwd model.PasswordHash, coins
 	return &u, nil
 }
 
-func (s *Storage) GetUserByUsername(un model.Username) (*model.User, error) {
+func (s *Storage) GetUser(un model.Username) (*model.User, error) {
 	var u model.User
 	row := s.db.QueryRow(`
 			SELECT id, username, password_hash, coins
