@@ -1,7 +1,6 @@
 package coins
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/cerfical/merchshop/internal/domain/model"
@@ -22,10 +21,7 @@ type coinService struct {
 func (s *coinService) GetCoinBalance(un model.Username) (model.NumCoins, error) {
 	u, err := s.users.GetUserByUsername(un)
 	if err != nil {
-		if errors.Is(err, model.ErrUserNotExist) {
-			return 0, model.ErrUserNotExist
-		}
-		return 0, fmt.Errorf("check coin balance: %w", err)
+		return 0, fmt.Errorf("get user data: %w", err)
 	}
 	return u.Coins, nil
 }
