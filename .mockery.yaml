@@ -4,10 +4,6 @@ packages:
     interfaces:
       PasswordHasher:
       TokenAuth:
-      AuthService:
-  github.com/cerfical/merchshop/internal/service/coins:
-    interfaces:
-      CoinService:
   github.com/cerfical/merchshop/internal/service/repo:
     interfaces:
       UserRepo:
