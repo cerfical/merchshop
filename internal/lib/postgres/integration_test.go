@@ -2,7 +2,9 @@ package postgres_test
 
 import (
 	"database/sql"
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/cerfical/merchshop/internal/config"
 	"github.com/cerfical/merchshop/internal/lib/postgres"
@@ -30,25 +32,25 @@ func (t *StorageIntegrationTest) SetupSuite() {
 
 	t.db, err = sql.Open("pgx", config.DB.ConnString())
 	t.Require().NoError(err)
-
-	t.Require().NoError(t.storage.MigrateUp())
 }
 
 func (t *StorageIntegrationTest) TearDownSuite() {
-	t.Require().NoError(t.storage.MigrateDown())
 	t.Require().NoError(t.db.Close())
 	t.Require().NoError(t.storage.Close())
 }
 
 func (t *StorageIntegrationTest) TestCreateUser() {
-	u, err := t.storage.CreateUser("test_new_user", model.PasswordHash{1, 2, 3}, 9)
+	newUser := newUser("new_user")
+
+	u, err := t.storage.CreateUser(newUser, model.PasswordHash{1, 2, 3}, 9)
 	t.Require().NoError(err)
 
 	var uu model.User
 	err = t.db.QueryRow(`
-		SELECT id, username, password_hash, coins
-		FROM users
-		WHERE username = 'test_new_user'`,
+			SELECT id, username, password_hash, coins
+			FROM users
+			WHERE username = $1`,
+		newUser,
 	).Scan(&uu.ID, &uu.Username, &uu.PasswordHash, &uu.Coins)
 
 	t.Require().NoError(err)
@@ -56,42 +58,49 @@ func (t *StorageIntegrationTest) TestCreateUser() {
 }
 
 func (t *StorageIntegrationTest) TestGetUser() {
-	var id model.UserID
+	user := newUser("user")
+
+	var userID model.UserID
 	err := t.db.QueryRow(`
-		INSERT INTO users (username, password_hash, coins)
-		VALUES ('test_existing_user', '\001\002\003', 9)
-		RETURNING id`,
-	).Scan(&id)
+			INSERT INTO users (username, password_hash, coins)
+			VALUES ($1, '\001\002\003', 9)
+			RETURNING id`,
+		user,
+	).Scan(&userID)
 	t.Require().NoError(err)
 
-	u, err := t.storage.GetUser("test_existing_user")
+	u, err := t.storage.GetUser(user)
 	t.Require().NoError(err)
 	t.Require().Equal(u, &model.User{
-		ID:           id,
-		Username:     "test_existing_user",
+		ID:           userID,
+		Username:     user,
 		PasswordHash: model.PasswordHash{1, 2, 3},
 		Coins:        9,
 	})
 }
 
 func (t *StorageIntegrationTest) TestPurchaseMerch() {
+	buyer := newUser("buyer")
+
 	// Create a buyer user
-	var buyer model.UserID
+	var buyerID model.UserID
 	err := t.db.QueryRow(`
-		INSERT INTO users (username, password_hash, coins)
-		VALUES ('test_buyer', '', 9)
-		RETURNING id`,
-	).Scan(&buyer)
+			INSERT INTO users (username, password_hash, coins)
+			VALUES ($1, '', 9)
+			RETURNING id`,
+		buyer,
+	).Scan(&buyerID)
 	t.Require().NoError(err)
 
-	err = t.storage.PurchaseMerch(buyer, &model.MerchItem{Kind: "shirt", Price: 8})
+	err = t.storage.PurchaseMerch(buyerID, &model.MerchItem{Kind: "shirt", Price: 8})
 	t.Require().NoError(err)
 
 	// Check that buyer's coin balance was decreased by the merch price
 	var coins model.NumCoins
 	err = t.db.QueryRow(`
-		SELECT coins FROM users
-		WHERE username = 'test_buyer'`,
+			SELECT coins FROM users
+			WHERE id = $1`,
+		buyerID,
 	).Scan(&coins)
 
 	t.Require().NoError(err)
@@ -103,10 +112,10 @@ func (t *StorageIntegrationTest) TestPurchaseMerch() {
 		quantity int
 	)
 	err = t.db.QueryRow(`
-		SELECT merch, quantity
-		FROM user_inventories
-		JOIN users ON user_id = id
-		WHERE username = 'test_buyer'`,
+			SELECT merch, quantity
+			FROM user_inventories
+			WHERE user_id = $1`,
+		buyerID,
 	).Scan(&merch, &quantity)
 
 	t.Require().NoError(err)
@@ -115,30 +124,36 @@ func (t *StorageIntegrationTest) TestPurchaseMerch() {
 }
 
 func (t *StorageIntegrationTest) TestTransferCoins() {
-	// Create users to participate in coin transfer
+	// Create users to perform coin transfer
+	sender := newUser("sender")
+	recipient := newUser("recipient")
+
 	_, err := t.db.Exec(`
-		INSERT INTO users (username, password_hash, coins)
-		VALUES
-			('test_sender', '', 9),
-			('test_recipient', '', 10)`,
+			INSERT INTO users (username, password_hash, coins)
+			VALUES ($1, '', 9), ($2, '', 10)`,
+		sender, recipient,
 	)
 	t.Require().NoError(err)
 
-	var sender, recipient model.UserID
-	err = t.db.QueryRow("SELECT id FROM users WHERE username = 'test_sender'").Scan(&sender)
-	t.Require().NoError(err)
-	err = t.db.QueryRow("SELECT id FROM users WHERE username = 'test_recipient'").Scan(&recipient)
+	var senderID, recipientID model.UserID
+	err = t.db.QueryRow("SELECT id FROM users WHERE username = $1", sender).
+		Scan(&senderID)
 	t.Require().NoError(err)
 
-	err = t.storage.TransferCoins(sender, recipient, 8)
+	err = t.db.QueryRow("SELECT id FROM users WHERE username = $1", recipient).
+		Scan(&recipientID)
+	t.Require().NoError(err)
+
+	err = t.storage.TransferCoins(senderID, recipientID, 8)
 	t.Require().NoError(err)
 
 	// Check that the correct amount of coins was withdrawn from the sender
 	var coins int
 	err = t.db.QueryRow(`
-		SELECT coins
-		FROM users
-		WHERE username = 'test_sender'`,
+			SELECT coins
+			FROM users
+			WHERE id = $1`,
+		senderID,
 	).Scan(&coins)
 
 	t.Require().NoError(err)
@@ -146,11 +161,16 @@ func (t *StorageIntegrationTest) TestTransferCoins() {
 
 	// And the correct amount was deposited to the recipient
 	err = t.db.QueryRow(`
-		SELECT coins
-		FROM users
-		WHERE username = 'test_recipient'`,
+			SELECT coins
+			FROM users
+			WHERE id = $1`,
+		recipientID,
 	).Scan(&coins)
 
 	t.Require().NoError(err)
 	t.Require().Equal(18, coins)
+}
+
+func newUser(s string) model.Username {
+	return model.Username(fmt.Sprintf("test_storage_%s_%d", s, time.Now().UnixNano()))
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/cerfical/merchshop/internal/api"
 	"github.com/cerfical/merchshop/internal/config"
@@ -12,6 +13,7 @@ import (
 	"github.com/cerfical/merchshop/internal/lib/postgres"
 	"github.com/cerfical/merchshop/internal/service/auth"
 	"github.com/cerfical/merchshop/internal/service/coins"
+	"github.com/cerfical/merchshop/internal/service/model"
 	"github.com/gavv/httpexpect/v2"
 	"github.com/stretchr/testify/suite"
 )
@@ -26,7 +28,8 @@ type APIIntegrationTest struct {
 	storage *postgres.Storage
 	expect  *httpexpect.Expect
 
-	authToken string
+	user, user1 string
+	authToken   string
 }
 
 func (t *APIIntegrationTest) SetupSuite() {
@@ -49,19 +52,19 @@ func (t *APIIntegrationTest) SetupSuite() {
 		},
 	})
 
-	t.Require().NoError(t.storage.MigrateUp())
-
 	// Create test users
-	token, err := auth.AuthUser("test_user1", "123")
+	t.user = newUser("user")
+	token, err := auth.AuthUser(model.Username(t.user), "123")
 	t.Require().NoError(err)
-	t.authToken = string(token)
 
-	_, err = auth.AuthUser("test_user2", "124")
+	t.user1 = newUser("user1")
+	_, err = auth.AuthUser(model.Username(t.user1), "123")
 	t.Require().NoError(err)
+
+	t.authToken = string(token)
 }
 
 func (t *APIIntegrationTest) TearDownSuite() {
-	t.Require().NoError(t.storage.MigrateDown())
 	t.Require().NoError(t.storage.Close())
 }
 
@@ -74,21 +77,21 @@ func (t *APIIntegrationTest) TestAuth() {
 	}{
 		{
 			Name:     "new_user",
-			Username: "new_test_user",
+			Username: newUser("new_user"),
 			Password: "123",
 			Status:   http.StatusOK,
 		},
 
 		{
 			Name:     "existing_user",
-			Username: "test_user1",
+			Username: t.user,
 			Password: "123",
 			Status:   http.StatusOK,
 		},
 
 		{
 			Name:     "bad_password",
-			Username: "test_user1",
+			Username: t.user,
 			Password: "124",
 			Status:   http.StatusUnauthorized,
 		},
@@ -146,7 +149,7 @@ func (t *APIIntegrationTest) TestSendCoin() {
 	}{
 		{
 			Name:      "ok",
-			ToUser:    "test_user2",
+			ToUser:    t.user1,
 			AuthToken: t.authToken,
 			Amount:    9,
 			Status:    http.StatusOK,
@@ -154,7 +157,7 @@ func (t *APIIntegrationTest) TestSendCoin() {
 
 		{
 			Name:      "invalid_auth_token",
-			ToUser:    "test_user3",
+			ToUser:    t.user1,
 			AuthToken: "bad_token",
 			Amount:    9,
 			Status:    http.StatusUnauthorized,
@@ -213,4 +216,8 @@ func (t *APIIntegrationTest) TestBuyItem() {
 			e.Status(test.Status)
 		})
 	}
+}
+
+func newUser(s string) string {
+	return fmt.Sprintf("test_api_%s_%d", s, time.Now().UnixNano())
 }
