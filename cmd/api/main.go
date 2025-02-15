@@ -24,7 +24,7 @@ func main() {
 		log.Fatal("Failed to open the database", err)
 	}
 
-	if err := db.UpMigrations(); err != nil {
+	if err := db.MigrateUp(); err != nil {
 		log.Fatal("Failed to apply migrations to the database", err)
 	}
 

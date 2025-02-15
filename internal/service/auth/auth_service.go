@@ -59,7 +59,7 @@ func (s *authService) AuthUser(username model.Username, passwd model.Password) (
 				return "", fmt.Errorf("create new user: %w", err)
 			}
 		} else if err != nil {
-			return "", fmt.Errorf("get user data: %w", err)
+			return "", fmt.Errorf("get user: %w", err)
 		}
 
 		// Success: the user does exist and there were no errors in retrieving it

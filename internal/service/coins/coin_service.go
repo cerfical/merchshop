@@ -25,7 +25,7 @@ type coinService struct {
 func (s *coinService) GetCoinBalance(un model.Username) (model.NumCoins, error) {
 	u, err := s.users.GetUser(un)
 	if err != nil {
-		return 0, fmt.Errorf("get user data: %w", err)
+		return 0, fmt.Errorf("get user: %w", err)
 	}
 	return u.Coins, nil
 }

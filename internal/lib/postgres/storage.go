@@ -23,7 +23,7 @@ func NewStorage(config *Config) (*Storage, error) {
 
 	// Check if the database connection is actually established
 	if err := db.Ping(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("ping database: %w", err)
 	}
 
 	return &Storage{db, config.Migrations}, nil
@@ -58,15 +58,21 @@ type Storage struct {
 	migrations string
 }
 
-func (s *Storage) UpMigrations() error {
+func (s *Storage) MigrateUp() error {
 	return s.migrate(func(m *migrate.Migrate) error {
-		return m.Up()
+		if err := m.Up(); err != nil {
+			return fmt.Errorf("migrate up: %w", err)
+		}
+		return nil
 	})
 }
 
-func (s *Storage) DownMigrations() error {
+func (s *Storage) MigrateDown() error {
 	return s.migrate(func(m *migrate.Migrate) error {
-		return m.Down()
+		if err := m.Down(); err != nil {
+			return fmt.Errorf("migrate down: %w", err)
+		}
+		return nil
 	})
 }
 
@@ -92,17 +98,17 @@ func (s *Storage) migrate(f func(*migrate.Migrate) error) error {
 	return nil
 }
 
-func (s *Storage) CreateUser(un model.Username, passwd model.PasswordHash, coins model.NumCoins) (*model.User, error) {
+func (s *Storage) CreateUser(username model.Username, passwd model.PasswordHash, coins model.NumCoins) (*model.User, error) {
 	row := s.db.QueryRow(`
 			INSERT INTO users(username, password_hash)
 			VALUES ($1, $2)
 			ON CONFLICT (username) DO NOTHING
 			RETURNING id`,
-		un, passwd,
+		username, passwd,
 	)
 
 	u := model.User{
-		Username:     un,
+		Username:     username,
 		PasswordHash: passwd,
 		Coins:        coins,
 	}
@@ -117,13 +123,13 @@ func (s *Storage) CreateUser(un model.Username, passwd model.PasswordHash, coins
 	return &u, nil
 }
 
-func (s *Storage) GetUser(un model.Username) (*model.User, error) {
+func (s *Storage) GetUser(username model.Username) (*model.User, error) {
 	var u model.User
 	row := s.db.QueryRow(`
 			SELECT id, username, password_hash, coins
 			FROM users
 			WHERE username=$1`,
-		un,
+		username,
 	)
 
 	if err := row.Scan(&u.ID, &u.Username, &u.PasswordHash, &u.Coins); errors.Is(err, sql.ErrNoRows) {
@@ -134,18 +140,11 @@ func (s *Storage) GetUser(un model.Username) (*model.User, error) {
 }
 
 func (s *Storage) TransferCoins(from model.UserID, to model.UserID, amount model.NumCoins) (err error) {
-	// TODO: For now, assume that provided user ids are always valid and users cannot be deleted
-
 	tx, err := s.db.Begin()
 	if err != nil {
 		return err
 	}
-
-	defer func() {
-		if txErr := tx.Rollback(); err == nil && txErr != nil && !errors.Is(txErr, sql.ErrTxDone) {
-			err = txErr
-		}
-	}()
+	defer tx.Rollback()
 
 	// Withdraw coins from one user
 	res, err := tx.Exec(`
@@ -155,6 +154,9 @@ func (s *Storage) TransferCoins(from model.UserID, to model.UserID, amount model
 				AND coins >= $2`,
 		from, amount,
 	)
+	if err != nil {
+		return fmt.Errorf("withdraw coins: %w", err)
+	}
 
 	// Check if any rows were updated
 	n, err := res.RowsAffected()
@@ -173,7 +175,7 @@ func (s *Storage) TransferCoins(from model.UserID, to model.UserID, amount model
 		to, amount,
 	)
 	if err != nil {
-		return err
+		return fmt.Errorf("deposit coins: %w", err)
 	}
 
 	// Record the transfer transaction
@@ -194,12 +196,7 @@ func (s *Storage) PurchaseMerch(buyer model.UserID, m *model.MerchItem) (err err
 	if err != nil {
 		return err
 	}
-
-	defer func() {
-		if txErr := tx.Rollback(); err == nil && txErr != nil && !errors.Is(txErr, sql.ErrTxDone) {
-			err = txErr
-		}
-	}()
+	defer tx.Rollback()
 
 	// Withdraw the amount of coins needed to purchase the item
 	res, err := tx.Exec(`
@@ -210,7 +207,7 @@ func (s *Storage) PurchaseMerch(buyer model.UserID, m *model.MerchItem) (err err
 		buyer, m.Price,
 	)
 	if err != nil {
-		return err
+		return fmt.Errorf("purchase item: %w", err)
 	}
 
 	// Check if the purchase was successful, i.e. the user has the required amount of coins
@@ -231,7 +228,7 @@ func (s *Storage) PurchaseMerch(buyer model.UserID, m *model.MerchItem) (err err
 		buyer, m.Kind,
 	)
 	if err != nil {
-		return err
+		return fmt.Errorf("update user inventory: %w", err)
 	}
 
 	return tx.Commit()
