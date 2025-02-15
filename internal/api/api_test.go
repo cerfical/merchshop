@@ -123,8 +123,8 @@ func (t *APITest) TestInfo() {
 					AuthToken(auth.Token("123321")).
 					Return("testuser", nil)
 				t.coinService.EXPECT().
-					GetCoinBalance(model.Username("testuser")).
-					Return(9, nil)
+					GetUser(model.Username("testuser")).
+					Return(&model.User{Coins: 9}, nil)
 			},
 
 			Builder: func(r *httpexpect.Request) {

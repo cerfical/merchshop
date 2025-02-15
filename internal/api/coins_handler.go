@@ -16,16 +16,50 @@ type coinsHandler struct {
 }
 
 func (h *coinsHandler) info(w http.ResponseWriter, r *http.Request) {
-	// TODO: The assumption is that the username provided refers to an existing user
-	user := userFromRequest(r)
-	coins, err := h.coinService.GetCoinBalance(user)
+	// TODO: The assumption is that the username provided refers to an existing username
+	username := userFromRequest(r)
+	u, err := h.coinService.GetUser(username)
 	if err != nil {
+		internalErrorHandler(h.log, "Unable to access user storage", err)(w, r)
 		return
 	}
 
-	writeResponse(w, http.StatusOK, &infoResponse{
-		Coins: int(coins),
-	})
+	infoResp := newInfoResponse(u)
+	writeResponse(w, http.StatusOK, &infoResp)
+}
+
+func newInfoResponse(u *model.User) *infoResponse {
+	infoResp := infoResponse{
+		Coins:     int(u.Coins),
+		Inventory: make([]inventoryItem, 0, len(u.Inventory)),
+		CoinHistory: coinHistory{
+			Received: make([]receivedInfo, 0, len(u.Deposits)),
+			Sent:     make([]sentInfo, 0, len(u.Withdrawals)),
+		},
+	}
+
+	for _, i := range u.Inventory {
+		infoResp.Inventory = append(infoResp.Inventory, inventoryItem{
+			Type:     string(i.Merch),
+			Quantity: int(i.Quantity),
+		})
+	}
+
+	for _, d := range u.Deposits {
+		infoResp.CoinHistory.Received = append(infoResp.CoinHistory.Received, receivedInfo{
+			FromUser: string(d.From),
+			Amount:   int(d.Amount),
+		})
+	}
+
+	for _, w := range u.Withdrawals {
+		infoResp.CoinHistory.Sent = append(infoResp.CoinHistory.Sent, sentInfo{
+			ToUser: string(w.To),
+			Amount: int(w.Amount),
+		})
+	}
+
+	return &infoResp
 }
 
 func (h *coinsHandler) sendCoin(w http.ResponseWriter, r *http.Request) {
@@ -88,4 +122,27 @@ type sendCoinRequest struct {
 
 type infoResponse struct {
 	Coins int `json:"coins"`
+
+	Inventory   []inventoryItem `json:"inventory"`
+	CoinHistory coinHistory     `json:"coinHistory"`
+}
+
+type coinHistory struct {
+	Received []receivedInfo `json:"received"`
+	Sent     []sentInfo     `json:"sent"`
+}
+
+type receivedInfo struct {
+	FromUser string `json:"fromUser"`
+	Amount   int    `json:"amount"`
+}
+
+type sentInfo struct {
+	ToUser string `json:"toUser"`
+	Amount int    `json:"amount"`
+}
+
+type inventoryItem struct {
+	Type     string `json:"type"`
+	Quantity int    `json:"quantity"`
 }

@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -124,19 +125,127 @@ func (s *Storage) CreateUser(username model.Username, passwd model.PasswordHash,
 }
 
 func (s *Storage) GetUser(username model.Username) (*model.User, error) {
-	var u model.User
-	row := s.db.QueryRow(`
-			SELECT id, username, password_hash, coins
+	// TODO: Implement conditional fetching of fields
+	// TODO: Is the transaction really necessary?
+
+	tx, err := s.db.BeginTx(context.Background(), &sql.TxOptions{
+		Isolation: sql.LevelRepeatableRead,
+		ReadOnly:  true,
+	})
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	u, err := getUser(tx, username)
+	if err != nil {
+		return nil, fmt.Errorf("get user data: %w", err)
+	}
+
+	u.Inventory, err = getUserInventory(tx, u)
+	if err != nil {
+		return nil, fmt.Errorf("ger user inventory: %w", err)
+	}
+
+	u.Withdrawals, u.Deposits, err = getUserTransactions(tx, u)
+	if err != nil {
+		return nil, fmt.Errorf("ger user transactions: %w", err)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+	return u, nil
+}
+
+func getUser(tx *sql.Tx, username model.Username) (*model.User, error) {
+	u := model.User{
+		Username: username,
+
+		// Ensure the extracted data is not nil
+		Deposits:    []model.Deposit{},
+		Withdrawals: []model.Withdrawal{},
+		Inventory:   []model.InventoryItem{},
+	}
+
+	row := tx.QueryRow(`
+			SELECT id, password_hash, coins
 			FROM users
 			WHERE username=$1`,
 		username,
 	)
 
-	if err := row.Scan(&u.ID, &u.Username, &u.PasswordHash, &u.Coins); errors.Is(err, sql.ErrNoRows) {
-		return nil, model.ErrUserNotExist
+	if err := row.Scan(&u.ID, &u.PasswordHash, &u.Coins); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, model.ErrUserNotExist
+		}
+		return nil, err
 	}
 
 	return &u, nil
+}
+
+func getUserInventory(tx *sql.Tx, u *model.User) (i []model.InventoryItem, _ error) {
+	rows, err := tx.Query(`
+			SELECT merch, quantity
+			FROM user_inventories
+			WHERE user_id = $1`,
+		u.ID,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var item model.InventoryItem
+		if err := rows.Scan(&item.Merch, &item.Quantity); err != nil {
+			return nil, err
+		}
+		i = append(i, item)
+	}
+
+	return i, rows.Err()
+}
+
+func getUserTransactions(tx *sql.Tx, u *model.User) (w []model.Withdrawal, d []model.Deposit, _ error) {
+	rows, err := tx.Query(`
+			SELECT to_users.username, from_users.username, amount
+			FROM coin_transactions
+			JOIN users AS to_users ON to_users.id = to_user_id
+			JOIN users AS from_users ON from_users.id = from_user_id
+			WHERE to_user_id = $1
+				OR from_user_id = $1`,
+		u.ID,
+	)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var (
+			from, to model.Username
+			amount   model.NumCoins
+		)
+		if err := rows.Scan(&to, &from, &amount); err != nil {
+			return nil, nil, err
+		}
+
+		if from == u.Username {
+			w = append(w, model.Withdrawal{
+				To:     to,
+				Amount: amount,
+			})
+		} else {
+			d = append(d, model.Deposit{
+				From:   from,
+				Amount: amount,
+			})
+		}
+	}
+
+	return w, d, rows.Err()
 }
 
 func (s *Storage) TransferCoins(from model.UserID, to model.UserID, amount model.NumCoins) (err error) {

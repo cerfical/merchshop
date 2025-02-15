@@ -13,7 +13,7 @@ func NewCoinService(users repo.UserRepo) CoinService {
 }
 
 type CoinService interface {
-	GetCoinBalance(model.Username) (model.NumCoins, error)
+	GetUser(model.Username) (*model.User, error)
 	SendCoins(from model.Username, to model.Username, amount model.NumCoins) error
 	BuyItem(buyer model.Username, m *model.MerchItem) error
 }
@@ -22,12 +22,12 @@ type coinService struct {
 	users repo.UserRepo
 }
 
-func (s *coinService) GetCoinBalance(un model.Username) (model.NumCoins, error) {
+func (s *coinService) GetUser(un model.Username) (*model.User, error) {
 	u, err := s.users.GetUser(un)
 	if err != nil {
-		return 0, fmt.Errorf("get user: %w", err)
+		return nil, fmt.Errorf("get user: %w", err)
 	}
-	return u.Coins, nil
+	return u, nil
 }
 
 func (s *coinService) SendCoins(from model.Username, to model.Username, amount model.NumCoins) error {

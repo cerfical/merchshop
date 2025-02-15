@@ -67,23 +67,25 @@ func (_c *CoinService_BuyItem_Call) RunAndReturn(run func(model.Username, *model
 	return _c
 }
 
-// GetCoinBalance provides a mock function with given fields: _a0
-func (_m *CoinService) GetCoinBalance(_a0 model.Username) (model.NumCoins, error) {
+// GetUser provides a mock function with given fields: _a0
+func (_m *CoinService) GetUser(_a0 model.Username) (*model.User, error) {
 	ret := _m.Called(_a0)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetCoinBalance")
+		panic("no return value specified for GetUser")
 	}
 
-	var r0 model.NumCoins
+	var r0 *model.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(model.Username) (model.NumCoins, error)); ok {
+	if rf, ok := ret.Get(0).(func(model.Username) (*model.User, error)); ok {
 		return rf(_a0)
 	}
-	if rf, ok := ret.Get(0).(func(model.Username) model.NumCoins); ok {
+	if rf, ok := ret.Get(0).(func(model.Username) *model.User); ok {
 		r0 = rf(_a0)
 	} else {
-		r0 = ret.Get(0).(model.NumCoins)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*model.User)
+		}
 	}
 
 	if rf, ok := ret.Get(1).(func(model.Username) error); ok {
@@ -95,30 +97,30 @@ func (_m *CoinService) GetCoinBalance(_a0 model.Username) (model.NumCoins, error
 	return r0, r1
 }
 
-// CoinService_GetCoinBalance_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetCoinBalance'
-type CoinService_GetCoinBalance_Call struct {
+// CoinService_GetUser_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetUser'
+type CoinService_GetUser_Call struct {
 	*mock.Call
 }
 
-// GetCoinBalance is a helper method to define mock.On call
+// GetUser is a helper method to define mock.On call
 //   - _a0 model.Username
-func (_e *CoinService_Expecter) GetCoinBalance(_a0 interface{}) *CoinService_GetCoinBalance_Call {
-	return &CoinService_GetCoinBalance_Call{Call: _e.mock.On("GetCoinBalance", _a0)}
+func (_e *CoinService_Expecter) GetUser(_a0 interface{}) *CoinService_GetUser_Call {
+	return &CoinService_GetUser_Call{Call: _e.mock.On("GetUser", _a0)}
 }
 
-func (_c *CoinService_GetCoinBalance_Call) Run(run func(_a0 model.Username)) *CoinService_GetCoinBalance_Call {
+func (_c *CoinService_GetUser_Call) Run(run func(_a0 model.Username)) *CoinService_GetUser_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(model.Username))
 	})
 	return _c
 }
 
-func (_c *CoinService_GetCoinBalance_Call) Return(_a0 model.NumCoins, _a1 error) *CoinService_GetCoinBalance_Call {
+func (_c *CoinService_GetUser_Call) Return(_a0 *model.User, _a1 error) *CoinService_GetUser_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *CoinService_GetCoinBalance_Call) RunAndReturn(run func(model.Username) (model.NumCoins, error)) *CoinService_GetCoinBalance_Call {
+func (_c *CoinService_GetUser_Call) RunAndReturn(run func(model.Username) (*model.User, error)) *CoinService_GetUser_Call {
 	_c.Call.Return(run)
 	return _c
 }

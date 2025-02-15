@@ -73,10 +73,12 @@ func (t *CoinServiceTest) TestGetUserCoinBalance() {
 			test.Setup()
 
 			service := coins.NewCoinService(t.users)
-			coins, err := service.GetCoinBalance(test.Username)
+			u, err := service.GetUser(test.Username)
 
 			test.Err(t.T(), err)
-			t.Equal(test.Coins, coins)
+			if u != nil {
+				t.Equal(test.Coins, u.Coins)
+			}
 		})
 	}
 }

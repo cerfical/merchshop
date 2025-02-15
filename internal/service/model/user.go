@@ -8,13 +8,34 @@ type Password string
 
 type NumCoins int
 
+type NumItems int
+
 type PasswordHash []byte
+
+type Deposit struct {
+	Amount NumCoins
+	From   Username
+}
+
+type Withdrawal struct {
+	Amount NumCoins
+	To     Username
+}
+
+type InventoryItem struct {
+	Merch    MerchKind
+	Quantity NumItems
+}
 
 type User struct {
 	ID UserID
 
 	Username     Username
 	PasswordHash PasswordHash
+
+	Inventory   []InventoryItem
+	Withdrawals []Withdrawal
+	Deposits    []Deposit
 
 	Coins NumCoins
 }
