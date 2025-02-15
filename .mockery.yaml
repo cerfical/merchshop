@@ -9,6 +9,6 @@ packages:
       UserRepo:
 
 outpkg: "mocks"
-dir: "internal/mocks"
+dir: "mocks"
 mockname: "{{ .InterfaceName }}"
 filename: "{{ .InterfaceName | snakecase }}.go"
