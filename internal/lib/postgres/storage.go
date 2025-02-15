@@ -74,11 +74,11 @@ func (s *Storage) migrate(f func(*migrate.Migrate) error) error {
 
 func (s *Storage) CreateUser(username model.Username, passwd model.PasswordHash, coins model.NumCoins) (*model.User, error) {
 	row := s.db.QueryRow(`
-			INSERT INTO users(username, password_hash)
-			VALUES ($1, $2)
+			INSERT INTO users(username, password_hash, coins)
+			VALUES ($1, $2, $3)
 			ON CONFLICT (username) DO NOTHING
 			RETURNING id`,
-		username, passwd,
+		username, passwd, coins,
 	)
 
 	u := model.User{
