@@ -56,12 +56,6 @@ func load(v *viper.Viper) (*Config, error) {
 	v.SetDefault("api.server.host", "localhost")
 	v.SetDefault("api.server.port", "8080")
 
-	// Set up defaults commonly used by Postgres
-	v.SetDefault("db.host", "localhost")
-	v.SetDefault("db.port", "5432")
-	v.SetDefault("db.name", "postgres")
-	v.SetDefault("db.user", "postgres")
-
 	options := []viper.DecoderConfigOption{
 		// Apply a custom hook so that [log.Level] values can be decoded with [log.Level.UnmarshalText]
 		viper.DecodeHook(mapstructure.ComposeDecodeHookFunc(
@@ -77,9 +71,12 @@ func load(v *viper.Viper) (*Config, error) {
 	}
 
 	var cfg Config
+	cfg.DB = *postgres.NewConfig()
+
 	if err := v.Unmarshal(&cfg, options...); err != nil {
 		return nil, err
 	}
+
 	return &cfg, nil
 }
 

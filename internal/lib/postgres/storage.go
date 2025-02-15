@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/cerfical/merchshop/internal/service/model"
 	"github.com/golang-migrate/migrate/v4"
@@ -15,9 +14,7 @@ import (
 )
 
 func NewStorage(config *Config) (*Storage, error) {
-	connStr := makeConnString(config)
-
-	db, err := sql.Open("pgx", connStr)
+	db, err := sql.Open("pgx", config.ConnString())
 	if err != nil {
 		return nil, err
 	}
@@ -27,31 +24,7 @@ func NewStorage(config *Config) (*Storage, error) {
 		return nil, fmt.Errorf("ping database: %w", err)
 	}
 
-	return &Storage{db, config.Migrations}, nil
-}
-
-func makeConnString(config *Config) string {
-	c := []struct {
-		key, val string
-	}{
-		{"host", config.Host},
-		{"port", config.Port},
-		{"user", config.User},
-		{"password", config.Password},
-		{"database", config.Name},
-		{"sslmode", "disable"},
-	}
-
-	var options []string
-	for _, cc := range c {
-		if cc.val == "" {
-			continue
-		}
-		options = append(options, fmt.Sprintf("%v='%v'", cc.key, cc.val))
-	}
-
-	connStr := strings.Join(options, " ")
-	return connStr
+	return &Storage{db, config.Migrations.Dir}, nil
 }
 
 type Storage struct {
@@ -92,7 +65,7 @@ func (s *Storage) migrate(f func(*migrate.Migrate) error) error {
 	}
 
 	// Apply the migrations if there are any changes
-	if err := f(m); err != nil && err != migrate.ErrNoChange {
+	if err := f(m); err != nil && !errors.Is(err, migrate.ErrNoChange) {
 		return err
 	}
 
