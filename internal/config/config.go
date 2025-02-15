@@ -27,11 +27,11 @@ func MustLoad(args []string) *Config {
 // Load loads the configuration from environment variables or from the command line arguments specified.
 func Load(args []string) (*Config, error) {
 	v := viper.New()
-	if len(args) > 1 {
-		if len(args) != 2 {
+	if len(args) > 0 {
+		if len(args) != 1 {
 			return nil, errors.New("expected a config path as the only command line argument")
 		}
-		v.SetConfigFile(args[1])
+		v.SetConfigFile(args[0])
 	}
 	return load(v)
 }

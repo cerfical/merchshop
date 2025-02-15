@@ -16,7 +16,7 @@ import (
 )
 
 func main() {
-	config := config.MustLoad(os.Args)
+	config := config.MustLoad(os.Args[1:])
 	log := log.New(&config.Log)
 
 	db, err := postgres.NewStorage(&config.DB)
