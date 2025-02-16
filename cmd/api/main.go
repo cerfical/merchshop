@@ -24,10 +24,6 @@ func main() {
 		log.Fatal("Failed to open the database", err)
 	}
 
-	if err := db.MigrateUp(); err != nil {
-		log.Fatal("Failed to apply migrations to the database", err)
-	}
-
 	defer func() {
 		if err := db.Close(); err != nil {
 			log.Error("Failed to close the database", err)

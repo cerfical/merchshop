@@ -17,6 +17,16 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_HOST_AUTH_METHOD: trust
 
+  # Run database migrations
+  migrations:
+    image: migrate/migrate
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./internal/lib/postgres/migrations:/migrations
+    command: -path=/migrations -database=postgres://postgres@db/postgres?sslmode=disable up
+
   # Backend API server
   api:
     restart: always

@@ -7,9 +7,6 @@ import (
 	"fmt"
 
 	"github.com/cerfical/merchshop/internal/service/model"
-	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/postgres"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
@@ -24,52 +21,11 @@ func NewStorage(config *Config) (*Storage, error) {
 		return nil, fmt.Errorf("ping database: %w", err)
 	}
 
-	return &Storage{db, config.Migrations.Dir}, nil
+	return &Storage{db}, nil
 }
 
 type Storage struct {
-	db         *sql.DB
-	migrations string
-}
-
-func (s *Storage) MigrateUp() error {
-	return s.migrate(func(m *migrate.Migrate) error {
-		if err := m.Up(); err != nil {
-			return fmt.Errorf("migrate up: %w", err)
-		}
-		return nil
-	})
-}
-
-func (s *Storage) MigrateDown() error {
-	return s.migrate(func(m *migrate.Migrate) error {
-		if err := m.Down(); err != nil {
-			return fmt.Errorf("migrate down: %w", err)
-		}
-		return nil
-	})
-}
-
-func (s *Storage) migrate(f func(*migrate.Migrate) error) error {
-	// Create a database migration driver from the existing DB instance
-	driver, err := postgres.WithInstance(s.db, &postgres.Config{})
-	if err != nil {
-		return err
-	}
-
-	// Load migrations from the local filesystem
-	migrationsPath := fmt.Sprintf("file://%v", s.migrations)
-	m, err := migrate.NewWithDatabaseInstance(migrationsPath, "postgres", driver)
-	if err != nil {
-		return err
-	}
-
-	// Apply the migrations if there are any changes
-	if err := f(m); err != nil && !errors.Is(err, migrate.ErrNoChange) {
-		return err
-	}
-
-	return nil
+	db *sql.DB
 }
 
 func (s *Storage) CreateUser(username model.Username, passwd model.PasswordHash, coins model.NumCoins) (*model.User, error) {

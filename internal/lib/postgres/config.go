@@ -12,10 +12,6 @@ type Config struct {
 
 	User     string
 	Password string
-
-	Migrations struct {
-		Dir string
-	}
 }
 
 func (c *Config) ConnString() string {
@@ -42,14 +38,10 @@ func (c *Config) ConnString() string {
 
 func NewConfig() *Config {
 	// Setup Postgres defaults
-	c := Config{
+	return &Config{
 		Host: "localhost",
 		Port: "5432",
 		Name: "postgres",
 		User: "postgres",
 	}
-
-	c.Migrations.Dir = "./migrations"
-
-	return &c
 }
