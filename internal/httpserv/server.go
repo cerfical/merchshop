@@ -8,14 +8,15 @@ import (
 	"net/http"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/cerfical/merchshop/internal/log"
 )
 
-func New(cfg *Config, h http.Handler, log *log.Logger) *Server {
-	servAddr := net.JoinHostPort(cfg.Host, cfg.Port)
+func New(config *Config, h http.Handler, log *log.Logger) *Server {
+	servAddr := net.JoinHostPort(config.Host, config.Port)
 	return &Server{
-		serv: http.Server{
+		http.Server{
 			Addr: servAddr,
 
 			// Log requests before any other logic applies
@@ -23,8 +24,14 @@ func New(cfg *Config, h http.Handler, log *log.Logger) *Server {
 
 			// Redirect [http.Server] errors to a custom logger
 			ErrorLog: stdlog.New(&httpErrorLog{log}, "", 0),
+
+			ReadHeaderTimeout: config.Timeout.ReadHeader,
+			ReadTimeout:       config.Timeout.Read,
+			WriteTimeout:      config.Timeout.Write,
+			IdleTimeout:       config.Timeout.Idle,
 		},
-		log: log,
+		log,
+		config.Timeout.Shutdown,
 	}
 }
 
@@ -47,6 +54,8 @@ func (w *httpErrorLog) Write(p []byte) (int, error) {
 type Server struct {
 	serv http.Server
 	log  *log.Logger
+
+	shutdownTimeout time.Duration
 }
 
 func (s *Server) Run(ctx context.Context) (err error) {
@@ -70,9 +79,17 @@ func (s *Server) Run(ctx context.Context) (err error) {
 
 	select {
 	case <-sigCtx.Done():
+		// Apply an optional timeout to the shutdown context
+		timedCtx := ctx
+		if s.shutdownTimeout > 0 {
+			var cancel context.CancelFunc
+			timedCtx, cancel = context.WithTimeout(timedCtx, s.shutdownTimeout)
+			defer cancel()
+		}
+
 		// The server stopped due to a system signal, try to shutdown the server cleanly
 		s.log.Info("Shutting down the server")
-		if err := s.serv.Shutdown(ctx); err != nil {
+		if err := s.serv.Shutdown(timedCtx); err != nil {
 			s.log.Error("Failed to shut down the server", err)
 			return err
 		}
