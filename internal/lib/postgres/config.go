@@ -42,10 +42,14 @@ func (c *Config) ConnString() string {
 
 func NewConfig() *Config {
 	// Setup Postgres defaults
-	return &Config{
+	c := Config{
 		Host: "localhost",
 		Port: "5432",
 		Name: "postgres",
 		User: "postgres",
 	}
+
+	c.Migrations.Dir = "./migrations"
+
+	return &c
 }

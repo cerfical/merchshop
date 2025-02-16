@@ -1,0 +1,32 @@
+services:
+  # TODO: Unset POSTGRES_HOST_AUTH_METHOD and use password protection
+  # TODO: Use docker secrets or similiar to store db passwords and server auth secrets
+  # TODO: Expose app config via docker configs
+  # TODO: Get rid of hardcoded 'postgres' values
+
+  # Postgres database
+  db:
+    image: postgres:alpine
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      start_period: 10s
+      start_interval: 1s
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_HOST_AUTH_METHOD: trust
+
+  # Backend API server
+  api:
+    restart: always
+    build:
+      context: .
+      dockerfile: cmd/api/Dockerfile
+    ports:
+      - 127.0.0.1:8080:80
+    environment:
+      - MERCHSHOP_DB_HOST=db
+    depends_on:
+      db:
+        condition: service_healthy
