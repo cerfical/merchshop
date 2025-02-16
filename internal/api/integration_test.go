@@ -54,11 +54,11 @@ func (t *APIIntegrationTest) SetupSuite() {
 
 	// Create test users
 	t.user = newUser("user")
-	token, err := auth.AuthUser(model.Username(t.user), "123")
+	token, err := auth.AuthUser(model.Username(t.user), "12345678910")
 	t.Require().NoError(err)
 
 	t.user1 = newUser("user1")
-	_, err = auth.AuthUser(model.Username(t.user1), "123")
+	_, err = auth.AuthUser(model.Username(t.user1), "12345678910")
 	t.Require().NoError(err)
 
 	t.authToken = string(token)
@@ -78,21 +78,21 @@ func (t *APIIntegrationTest) TestAuth() {
 		{
 			Name:     "new_user",
 			Username: newUser("new_user"),
-			Password: "123",
+			Password: "12345678910",
 			Status:   http.StatusOK,
 		},
 
 		{
 			Name:     "existing_user",
 			Username: t.user,
-			Password: "123",
+			Password: "12345678910",
 			Status:   http.StatusOK,
 		},
 
 		{
 			Name:     "bad_password",
 			Username: t.user,
-			Password: "124",
+			Password: "bad_12345678910",
 			Status:   http.StatusUnauthorized,
 		},
 	}
