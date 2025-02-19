@@ -15,6 +15,10 @@ import (
 
 func New(config *Config, h http.Handler, log *log.Logger) *Server {
 	servAddr := net.JoinHostPort(config.Host, config.Port)
+	if config.Timeout.Request > 0 {
+		h = http.TimeoutHandler(h, config.Timeout.Request, "Timeout was reached")
+	}
+
 	return &Server{
 		http.Server{
 			Addr: servAddr,

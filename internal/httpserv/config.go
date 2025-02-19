@@ -12,6 +12,7 @@ type Config struct {
 		Read  time.Duration
 		Write time.Duration
 
+		Request  time.Duration
 		Idle     time.Duration
 		Shutdown time.Duration
 	}
