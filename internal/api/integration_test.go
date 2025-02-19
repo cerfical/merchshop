@@ -1,6 +1,7 @@
 package api_test
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"testing"
@@ -54,11 +55,11 @@ func (t *APIIntegrationTest) SetupSuite() {
 
 	// Create test users
 	t.user = newUser("user")
-	token, err := auth.AuthUser(model.Username(t.user), "12345678910")
+	token, err := auth.AuthUser(context.Background(), model.Username(t.user), "12345678910")
 	t.Require().NoError(err)
 
 	t.user1 = newUser("user1")
-	_, err = auth.AuthUser(model.Username(t.user1), "12345678910")
+	_, err = auth.AuthUser(context.Background(), model.Username(t.user1), "12345678910")
 	t.Require().NoError(err)
 
 	t.authToken = string(token)

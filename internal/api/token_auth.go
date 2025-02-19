@@ -19,7 +19,7 @@ func tokenAuth(a auth.AuthService) func(http.HandlerFunc) http.HandlerFunc {
 				return
 			}
 
-			user, err := a.AuthToken(auth.Token(s[1]))
+			user, err := a.AuthToken(r.Context(), auth.Token(s[1]))
 			if err != nil {
 				unauthorizedHandler("The provided token is invalid")(w, r)
 				return

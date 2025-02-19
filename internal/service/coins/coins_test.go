@@ -1,11 +1,12 @@
 package coins_test
 
 import (
+	"context"
 	"testing"
 
-	"github.com/cerfical/merchshop/mocks"
 	"github.com/cerfical/merchshop/internal/service/coins"
 	"github.com/cerfical/merchshop/internal/service/model"
+	"github.com/cerfical/merchshop/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
@@ -47,7 +48,7 @@ func (t *CoinServiceTest) TestGetUserCoinBalance() {
 
 			Setup: func() {
 				t.users.EXPECT().
-					GetUser(model.Username("test_user")).
+					GetUser(mock.Anything, model.Username("test_user")).
 					Return(&user, nil)
 			},
 			Err: assert.NoError,
@@ -59,7 +60,7 @@ func (t *CoinServiceTest) TestGetUserCoinBalance() {
 
 			Setup: func() {
 				t.users.EXPECT().
-					GetUser(model.Username("bad_test_user")).
+					GetUser(mock.Anything, model.Username("bad_test_user")).
 					Return(nil, model.ErrUserNotExist)
 			},
 			Err: func(t assert.TestingT, err error, args ...any) bool {
@@ -73,7 +74,7 @@ func (t *CoinServiceTest) TestGetUserCoinBalance() {
 			test.Setup()
 
 			service := coins.NewCoinService(t.users)
-			u, err := service.GetUser(test.Username)
+			u, err := service.GetUser(context.Background(), test.Username)
 
 			test.Err(t.T(), err)
 			if u != nil {
@@ -112,11 +113,11 @@ func (t *CoinServiceTest) TestSendCoins() {
 
 			Setup: func() {
 				e := t.users.EXPECT()
-				e.GetUser(model.Username("test_sender")).
+				e.GetUser(mock.Anything, model.Username("test_sender")).
 					Return(&users[0], nil)
-				e.GetUser(model.Username("test_recipient")).
+				e.GetUser(mock.Anything, model.Username("test_recipient")).
 					Return(&users[1], nil)
-				e.TransferCoins(model.UserID(0), model.UserID(1), model.NumCoins(9)).
+				e.TransferCoins(mock.Anything, model.UserID(0), model.UserID(1), model.NumCoins(9)).
 					Return(nil)
 			},
 			Err: assert.NoError,
@@ -130,9 +131,9 @@ func (t *CoinServiceTest) TestSendCoins() {
 
 			Setup: func() {
 				e := t.users.EXPECT()
-				e.GetUser(model.Username("bad_test_sender")).
+				e.GetUser(mock.Anything, model.Username("bad_test_sender")).
 					Return(nil, model.ErrUserNotExist)
-				e.GetUser(mock.Anything).
+				e.GetUser(mock.Anything, mock.Anything).
 					Return(&users[1], nil)
 			},
 			Err: func(t assert.TestingT, err error, args ...any) bool {
@@ -148,9 +149,9 @@ func (t *CoinServiceTest) TestSendCoins() {
 
 			Setup: func() {
 				e := t.users.EXPECT()
-				e.GetUser(model.Username("bad_test_recipient")).
+				e.GetUser(mock.Anything, model.Username("bad_test_recipient")).
 					Return(nil, model.ErrUserNotExist)
-				e.GetUser(mock.Anything).
+				e.GetUser(mock.Anything, mock.Anything).
 					Return(&users[1], nil)
 			},
 			Err: func(t assert.TestingT, err error, args ...any) bool {
@@ -166,11 +167,11 @@ func (t *CoinServiceTest) TestSendCoins() {
 
 			Setup: func() {
 				e := t.users.EXPECT()
-				e.GetUser(model.Username("test_sender")).
+				e.GetUser(mock.Anything, model.Username("test_sender")).
 					Return(&users[0], nil)
-				e.GetUser(model.Username("test_recipient")).
+				e.GetUser(mock.Anything, model.Username("test_recipient")).
 					Return(&users[1], nil)
-				e.TransferCoins(model.UserID(0), model.UserID(1), model.NumCoins(10)).
+				e.TransferCoins(mock.Anything, model.UserID(0), model.UserID(1), model.NumCoins(10)).
 					Return(model.ErrNotEnoughCoins)
 			},
 			Err: func(t assert.TestingT, err error, args ...any) bool {
@@ -184,7 +185,7 @@ func (t *CoinServiceTest) TestSendCoins() {
 			test.Setup()
 
 			service := coins.NewCoinService(t.users)
-			err := service.SendCoins(test.Sender, test.Recipient, test.Amount)
+			err := service.SendCoins(context.Background(), test.Sender, test.Recipient, test.Amount)
 			test.Err(t.T(), err)
 		})
 	}

@@ -3,6 +3,8 @@
 package mocks
 
 import (
+	context "context"
+
 	model "github.com/cerfical/merchshop/internal/service/model"
 	mock "github.com/stretchr/testify/mock"
 )
@@ -20,9 +22,9 @@ func (_m *UserRepo) EXPECT() *UserRepo_Expecter {
 	return &UserRepo_Expecter{mock: &_m.Mock}
 }
 
-// CreateUser provides a mock function with given fields: _a0, _a1, _a2
-func (_m *UserRepo) CreateUser(_a0 model.Username, _a1 model.PasswordHash, _a2 model.NumCoins) (*model.User, error) {
-	ret := _m.Called(_a0, _a1, _a2)
+// CreateUser provides a mock function with given fields: _a0, _a1, _a2, _a3
+func (_m *UserRepo) CreateUser(_a0 context.Context, _a1 model.Username, _a2 model.PasswordHash, _a3 model.NumCoins) (*model.User, error) {
+	ret := _m.Called(_a0, _a1, _a2, _a3)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateUser")
@@ -30,19 +32,19 @@ func (_m *UserRepo) CreateUser(_a0 model.Username, _a1 model.PasswordHash, _a2 m
 
 	var r0 *model.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(model.Username, model.PasswordHash, model.NumCoins) (*model.User, error)); ok {
-		return rf(_a0, _a1, _a2)
+	if rf, ok := ret.Get(0).(func(context.Context, model.Username, model.PasswordHash, model.NumCoins) (*model.User, error)); ok {
+		return rf(_a0, _a1, _a2, _a3)
 	}
-	if rf, ok := ret.Get(0).(func(model.Username, model.PasswordHash, model.NumCoins) *model.User); ok {
-		r0 = rf(_a0, _a1, _a2)
+	if rf, ok := ret.Get(0).(func(context.Context, model.Username, model.PasswordHash, model.NumCoins) *model.User); ok {
+		r0 = rf(_a0, _a1, _a2, _a3)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.User)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(model.Username, model.PasswordHash, model.NumCoins) error); ok {
-		r1 = rf(_a0, _a1, _a2)
+	if rf, ok := ret.Get(1).(func(context.Context, model.Username, model.PasswordHash, model.NumCoins) error); ok {
+		r1 = rf(_a0, _a1, _a2, _a3)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -56,16 +58,17 @@ type UserRepo_CreateUser_Call struct {
 }
 
 // CreateUser is a helper method to define mock.On call
-//   - _a0 model.Username
-//   - _a1 model.PasswordHash
-//   - _a2 model.NumCoins
-func (_e *UserRepo_Expecter) CreateUser(_a0 interface{}, _a1 interface{}, _a2 interface{}) *UserRepo_CreateUser_Call {
-	return &UserRepo_CreateUser_Call{Call: _e.mock.On("CreateUser", _a0, _a1, _a2)}
+//   - _a0 context.Context
+//   - _a1 model.Username
+//   - _a2 model.PasswordHash
+//   - _a3 model.NumCoins
+func (_e *UserRepo_Expecter) CreateUser(_a0 interface{}, _a1 interface{}, _a2 interface{}, _a3 interface{}) *UserRepo_CreateUser_Call {
+	return &UserRepo_CreateUser_Call{Call: _e.mock.On("CreateUser", _a0, _a1, _a2, _a3)}
 }
 
-func (_c *UserRepo_CreateUser_Call) Run(run func(_a0 model.Username, _a1 model.PasswordHash, _a2 model.NumCoins)) *UserRepo_CreateUser_Call {
+func (_c *UserRepo_CreateUser_Call) Run(run func(_a0 context.Context, _a1 model.Username, _a2 model.PasswordHash, _a3 model.NumCoins)) *UserRepo_CreateUser_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(model.Username), args[1].(model.PasswordHash), args[2].(model.NumCoins))
+		run(args[0].(context.Context), args[1].(model.Username), args[2].(model.PasswordHash), args[3].(model.NumCoins))
 	})
 	return _c
 }
@@ -75,14 +78,14 @@ func (_c *UserRepo_CreateUser_Call) Return(_a0 *model.User, _a1 error) *UserRepo
 	return _c
 }
 
-func (_c *UserRepo_CreateUser_Call) RunAndReturn(run func(model.Username, model.PasswordHash, model.NumCoins) (*model.User, error)) *UserRepo_CreateUser_Call {
+func (_c *UserRepo_CreateUser_Call) RunAndReturn(run func(context.Context, model.Username, model.PasswordHash, model.NumCoins) (*model.User, error)) *UserRepo_CreateUser_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// GetUser provides a mock function with given fields: _a0
-func (_m *UserRepo) GetUser(_a0 model.Username) (*model.User, error) {
-	ret := _m.Called(_a0)
+// GetUser provides a mock function with given fields: _a0, _a1
+func (_m *UserRepo) GetUser(_a0 context.Context, _a1 model.Username) (*model.User, error) {
+	ret := _m.Called(_a0, _a1)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetUser")
@@ -90,19 +93,19 @@ func (_m *UserRepo) GetUser(_a0 model.Username) (*model.User, error) {
 
 	var r0 *model.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(model.Username) (*model.User, error)); ok {
-		return rf(_a0)
+	if rf, ok := ret.Get(0).(func(context.Context, model.Username) (*model.User, error)); ok {
+		return rf(_a0, _a1)
 	}
-	if rf, ok := ret.Get(0).(func(model.Username) *model.User); ok {
-		r0 = rf(_a0)
+	if rf, ok := ret.Get(0).(func(context.Context, model.Username) *model.User); ok {
+		r0 = rf(_a0, _a1)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*model.User)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(model.Username) error); ok {
-		r1 = rf(_a0)
+	if rf, ok := ret.Get(1).(func(context.Context, model.Username) error); ok {
+		r1 = rf(_a0, _a1)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -116,14 +119,15 @@ type UserRepo_GetUser_Call struct {
 }
 
 // GetUser is a helper method to define mock.On call
-//   - _a0 model.Username
-func (_e *UserRepo_Expecter) GetUser(_a0 interface{}) *UserRepo_GetUser_Call {
-	return &UserRepo_GetUser_Call{Call: _e.mock.On("GetUser", _a0)}
+//   - _a0 context.Context
+//   - _a1 model.Username
+func (_e *UserRepo_Expecter) GetUser(_a0 interface{}, _a1 interface{}) *UserRepo_GetUser_Call {
+	return &UserRepo_GetUser_Call{Call: _e.mock.On("GetUser", _a0, _a1)}
 }
 
-func (_c *UserRepo_GetUser_Call) Run(run func(_a0 model.Username)) *UserRepo_GetUser_Call {
+func (_c *UserRepo_GetUser_Call) Run(run func(_a0 context.Context, _a1 model.Username)) *UserRepo_GetUser_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(model.Username))
+		run(args[0].(context.Context), args[1].(model.Username))
 	})
 	return _c
 }
@@ -133,22 +137,22 @@ func (_c *UserRepo_GetUser_Call) Return(_a0 *model.User, _a1 error) *UserRepo_Ge
 	return _c
 }
 
-func (_c *UserRepo_GetUser_Call) RunAndReturn(run func(model.Username) (*model.User, error)) *UserRepo_GetUser_Call {
+func (_c *UserRepo_GetUser_Call) RunAndReturn(run func(context.Context, model.Username) (*model.User, error)) *UserRepo_GetUser_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// PurchaseMerch provides a mock function with given fields: buyer, m
-func (_m *UserRepo) PurchaseMerch(buyer model.UserID, m *model.MerchItem) error {
-	ret := _m.Called(buyer, m)
+// PurchaseMerch provides a mock function with given fields: ctx, buyer, m
+func (_m *UserRepo) PurchaseMerch(ctx context.Context, buyer model.UserID, m *model.MerchItem) error {
+	ret := _m.Called(ctx, buyer, m)
 
 	if len(ret) == 0 {
 		panic("no return value specified for PurchaseMerch")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(model.UserID, *model.MerchItem) error); ok {
-		r0 = rf(buyer, m)
+	if rf, ok := ret.Get(0).(func(context.Context, model.UserID, *model.MerchItem) error); ok {
+		r0 = rf(ctx, buyer, m)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -162,15 +166,16 @@ type UserRepo_PurchaseMerch_Call struct {
 }
 
 // PurchaseMerch is a helper method to define mock.On call
+//   - ctx context.Context
 //   - buyer model.UserID
 //   - m *model.MerchItem
-func (_e *UserRepo_Expecter) PurchaseMerch(buyer interface{}, m interface{}) *UserRepo_PurchaseMerch_Call {
-	return &UserRepo_PurchaseMerch_Call{Call: _e.mock.On("PurchaseMerch", buyer, m)}
+func (_e *UserRepo_Expecter) PurchaseMerch(ctx interface{}, buyer interface{}, m interface{}) *UserRepo_PurchaseMerch_Call {
+	return &UserRepo_PurchaseMerch_Call{Call: _e.mock.On("PurchaseMerch", ctx, buyer, m)}
 }
 
-func (_c *UserRepo_PurchaseMerch_Call) Run(run func(buyer model.UserID, m *model.MerchItem)) *UserRepo_PurchaseMerch_Call {
+func (_c *UserRepo_PurchaseMerch_Call) Run(run func(ctx context.Context, buyer model.UserID, m *model.MerchItem)) *UserRepo_PurchaseMerch_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(model.UserID), args[1].(*model.MerchItem))
+		run(args[0].(context.Context), args[1].(model.UserID), args[2].(*model.MerchItem))
 	})
 	return _c
 }
@@ -180,22 +185,22 @@ func (_c *UserRepo_PurchaseMerch_Call) Return(_a0 error) *UserRepo_PurchaseMerch
 	return _c
 }
 
-func (_c *UserRepo_PurchaseMerch_Call) RunAndReturn(run func(model.UserID, *model.MerchItem) error) *UserRepo_PurchaseMerch_Call {
+func (_c *UserRepo_PurchaseMerch_Call) RunAndReturn(run func(context.Context, model.UserID, *model.MerchItem) error) *UserRepo_PurchaseMerch_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// TransferCoins provides a mock function with given fields: from, to, amount
-func (_m *UserRepo) TransferCoins(from model.UserID, to model.UserID, amount model.NumCoins) error {
-	ret := _m.Called(from, to, amount)
+// TransferCoins provides a mock function with given fields: ctx, from, to, amount
+func (_m *UserRepo) TransferCoins(ctx context.Context, from model.UserID, to model.UserID, amount model.NumCoins) error {
+	ret := _m.Called(ctx, from, to, amount)
 
 	if len(ret) == 0 {
 		panic("no return value specified for TransferCoins")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(model.UserID, model.UserID, model.NumCoins) error); ok {
-		r0 = rf(from, to, amount)
+	if rf, ok := ret.Get(0).(func(context.Context, model.UserID, model.UserID, model.NumCoins) error); ok {
+		r0 = rf(ctx, from, to, amount)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -209,16 +214,17 @@ type UserRepo_TransferCoins_Call struct {
 }
 
 // TransferCoins is a helper method to define mock.On call
+//   - ctx context.Context
 //   - from model.UserID
 //   - to model.UserID
 //   - amount model.NumCoins
-func (_e *UserRepo_Expecter) TransferCoins(from interface{}, to interface{}, amount interface{}) *UserRepo_TransferCoins_Call {
-	return &UserRepo_TransferCoins_Call{Call: _e.mock.On("TransferCoins", from, to, amount)}
+func (_e *UserRepo_Expecter) TransferCoins(ctx interface{}, from interface{}, to interface{}, amount interface{}) *UserRepo_TransferCoins_Call {
+	return &UserRepo_TransferCoins_Call{Call: _e.mock.On("TransferCoins", ctx, from, to, amount)}
 }
 
-func (_c *UserRepo_TransferCoins_Call) Run(run func(from model.UserID, to model.UserID, amount model.NumCoins)) *UserRepo_TransferCoins_Call {
+func (_c *UserRepo_TransferCoins_Call) Run(run func(ctx context.Context, from model.UserID, to model.UserID, amount model.NumCoins)) *UserRepo_TransferCoins_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(model.UserID), args[1].(model.UserID), args[2].(model.NumCoins))
+		run(args[0].(context.Context), args[1].(model.UserID), args[2].(model.UserID), args[3].(model.NumCoins))
 	})
 	return _c
 }
@@ -228,7 +234,7 @@ func (_c *UserRepo_TransferCoins_Call) Return(_a0 error) *UserRepo_TransferCoins
 	return _c
 }
 
-func (_c *UserRepo_TransferCoins_Call) RunAndReturn(run func(model.UserID, model.UserID, model.NumCoins) error) *UserRepo_TransferCoins_Call {
+func (_c *UserRepo_TransferCoins_Call) RunAndReturn(run func(context.Context, model.UserID, model.UserID, model.NumCoins) error) *UserRepo_TransferCoins_Call {
 	_c.Call.Return(run)
 	return _c
 }

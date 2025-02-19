@@ -1,6 +1,7 @@
 package postgres_test
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"testing"
@@ -42,7 +43,7 @@ func (t *StorageIntegrationTest) TearDownSuite() {
 func (t *StorageIntegrationTest) TestCreateUser() {
 	newUser := newUser("new_user")
 
-	u, err := t.storage.CreateUser(newUser, model.PasswordHash{1, 2, 3}, 9)
+	u, err := t.storage.CreateUser(context.Background(), newUser, model.PasswordHash{1, 2, 3}, 9)
 	t.Require().NoError(err)
 
 	var uu model.User
@@ -69,7 +70,7 @@ func (t *StorageIntegrationTest) TestGetUser() {
 	).Scan(&userID)
 	t.Require().NoError(err)
 
-	u, err := t.storage.GetUser(user)
+	u, err := t.storage.GetUser(context.Background(), user)
 	t.Require().NoError(err)
 	t.Require().Equal(u, &model.User{
 		ID:           userID,
@@ -92,7 +93,7 @@ func (t *StorageIntegrationTest) TestPurchaseMerch() {
 	).Scan(&buyerID)
 	t.Require().NoError(err)
 
-	err = t.storage.PurchaseMerch(buyerID, &model.MerchItem{Kind: "shirt", Price: 8})
+	err = t.storage.PurchaseMerch(context.Background(), buyerID, &model.MerchItem{Kind: "shirt", Price: 8})
 	t.Require().NoError(err)
 
 	// Check that buyer's coin balance was decreased by the merch price
@@ -144,7 +145,7 @@ func (t *StorageIntegrationTest) TestTransferCoins() {
 		Scan(&recipientID)
 	t.Require().NoError(err)
 
-	err = t.storage.TransferCoins(senderID, recipientID, 8)
+	err = t.storage.TransferCoins(context.Background(), senderID, recipientID, 8)
 	t.Require().NoError(err)
 
 	// Check that the correct amount of coins was withdrawn from the sender

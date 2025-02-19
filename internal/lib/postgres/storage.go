@@ -28,8 +28,8 @@ type Storage struct {
 	db *sql.DB
 }
 
-func (s *Storage) CreateUser(username model.Username, passwd model.PasswordHash, coins model.NumCoins) (*model.User, error) {
-	row := s.db.QueryRow(`
+func (s *Storage) CreateUser(ctx context.Context, username model.Username, passwd model.PasswordHash, coins model.NumCoins) (*model.User, error) {
+	row := s.db.QueryRowContext(ctx, `
 			INSERT INTO users(username, password_hash, coins)
 			VALUES ($1, $2, $3)
 			ON CONFLICT (username) DO NOTHING
@@ -53,11 +53,11 @@ func (s *Storage) CreateUser(username model.Username, passwd model.PasswordHash,
 	return &u, nil
 }
 
-func (s *Storage) GetUser(username model.Username) (*model.User, error) {
+func (s *Storage) GetUser(ctx context.Context, username model.Username) (*model.User, error) {
 	// TODO: Implement conditional fetching of fields
 	// TODO: Is the transaction really necessary?
 
-	tx, err := s.db.BeginTx(context.Background(), &sql.TxOptions{
+	tx, err := s.db.BeginTx(ctx, &sql.TxOptions{
 		Isolation: sql.LevelRepeatableRead,
 		ReadOnly:  true,
 	})
@@ -66,17 +66,17 @@ func (s *Storage) GetUser(username model.Username) (*model.User, error) {
 	}
 	defer tx.Rollback()
 
-	u, err := getUser(tx, username)
+	u, err := getUser(ctx, tx, username)
 	if err != nil {
 		return nil, fmt.Errorf("get user data: %w", err)
 	}
 
-	u.Inventory, err = getUserInventory(tx, u)
+	u.Inventory, err = getUserInventory(ctx, tx, u)
 	if err != nil {
 		return nil, fmt.Errorf("ger user inventory: %w", err)
 	}
 
-	u.Withdrawals, u.Deposits, err = getUserTransactions(tx, u)
+	u.Withdrawals, u.Deposits, err = getUserTransactions(ctx, tx, u)
 	if err != nil {
 		return nil, fmt.Errorf("ger user transactions: %w", err)
 	}
@@ -87,7 +87,7 @@ func (s *Storage) GetUser(username model.Username) (*model.User, error) {
 	return u, nil
 }
 
-func getUser(tx *sql.Tx, username model.Username) (*model.User, error) {
+func getUser(ctx context.Context, tx *sql.Tx, username model.Username) (*model.User, error) {
 	u := model.User{
 		Username: username,
 
@@ -97,7 +97,7 @@ func getUser(tx *sql.Tx, username model.Username) (*model.User, error) {
 		Inventory:   []model.InventoryItem{},
 	}
 
-	row := tx.QueryRow(`
+	row := tx.QueryRowContext(ctx, `
 			SELECT id, password_hash, coins
 			FROM users
 			WHERE username=$1`,
@@ -114,8 +114,8 @@ func getUser(tx *sql.Tx, username model.Username) (*model.User, error) {
 	return &u, nil
 }
 
-func getUserInventory(tx *sql.Tx, u *model.User) (i []model.InventoryItem, _ error) {
-	rows, err := tx.Query(`
+func getUserInventory(ctx context.Context, tx *sql.Tx, u *model.User) (i []model.InventoryItem, _ error) {
+	rows, err := tx.QueryContext(ctx, `
 			SELECT merch, quantity
 			FROM user_inventories
 			WHERE user_id = $1`,
@@ -137,8 +137,8 @@ func getUserInventory(tx *sql.Tx, u *model.User) (i []model.InventoryItem, _ err
 	return i, rows.Err()
 }
 
-func getUserTransactions(tx *sql.Tx, u *model.User) (w []model.Withdrawal, d []model.Deposit, _ error) {
-	rows, err := tx.Query(`
+func getUserTransactions(ctx context.Context, tx *sql.Tx, u *model.User) (w []model.Withdrawal, d []model.Deposit, _ error) {
+	rows, err := tx.QueryContext(ctx, `
 			SELECT to_users.username, from_users.username, amount
 			FROM coin_transactions
 			JOIN users AS to_users ON to_users.id = to_user_id
@@ -177,15 +177,15 @@ func getUserTransactions(tx *sql.Tx, u *model.User) (w []model.Withdrawal, d []m
 	return w, d, rows.Err()
 }
 
-func (s *Storage) TransferCoins(from model.UserID, to model.UserID, amount model.NumCoins) (err error) {
-	tx, err := s.db.Begin()
+func (s *Storage) TransferCoins(ctx context.Context, from model.UserID, to model.UserID, amount model.NumCoins) (err error) {
+	tx, err := s.db.BeginTx(ctx, &sql.TxOptions{})
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback()
 
 	// Withdraw coins from one user
-	res, err := tx.Exec(`
+	res, err := tx.ExecContext(ctx, `
 			UPDATE users
 			SET coins = coins - $2
 			WHERE id = $1
@@ -206,7 +206,7 @@ func (s *Storage) TransferCoins(from model.UserID, to model.UserID, amount model
 	}
 
 	// Transfer the coins to another user
-	_, err = tx.Exec(`
+	_, err = tx.ExecContext(ctx, `
 			UPDATE users
 			SET coins = coins + $2
 			WHERE id = $1`,
@@ -217,7 +217,7 @@ func (s *Storage) TransferCoins(from model.UserID, to model.UserID, amount model
 	}
 
 	// Record the transfer transaction
-	_, err = tx.Exec(`
+	_, err = tx.ExecContext(ctx, `
 			INSERT INTO coin_transactions(from_user_id, to_user_id, amount)
 			VALUES ($1, $2, $3)`,
 		from, to, amount,
@@ -229,15 +229,15 @@ func (s *Storage) TransferCoins(from model.UserID, to model.UserID, amount model
 	return tx.Commit()
 }
 
-func (s *Storage) PurchaseMerch(buyer model.UserID, m *model.MerchItem) (err error) {
-	tx, err := s.db.Begin()
+func (s *Storage) PurchaseMerch(ctx context.Context, buyer model.UserID, m *model.MerchItem) (err error) {
+	tx, err := s.db.BeginTx(ctx, &sql.TxOptions{})
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback()
 
 	// Withdraw the amount of coins needed to purchase the item
-	res, err := tx.Exec(`
+	res, err := tx.ExecContext(ctx, `
 			UPDATE users
 			SET coins = coins - $2
 			WHERE id = $1
@@ -258,7 +258,7 @@ func (s *Storage) PurchaseMerch(buyer model.UserID, m *model.MerchItem) (err err
 	}
 
 	// Create a record for the item in the user's inventory
-	_, err = tx.Exec(`
+	_, err = tx.ExecContext(ctx, `
 			INSERT INTO user_inventories(user_id, merch, quantity)
 			VALUES($1, $2, 1)
 			ON CONFLICT (user_id, merch) DO UPDATE

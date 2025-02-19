@@ -1,12 +1,14 @@
 package auth_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/cerfical/merchshop/internal/service/auth"
 	"github.com/cerfical/merchshop/internal/service/model"
 	"github.com/cerfical/merchshop/mocks"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -60,7 +62,7 @@ func (t *AuthServiceTest) TestAuthUser() {
 					Return(nil)
 
 				t.users.EXPECT().
-					GetUser(model.Username("test_user")).
+					GetUser(mock.Anything, model.Username("test_user")).
 					Return(&users[0], nil)
 
 				t.auth.EXPECT().
@@ -84,9 +86,9 @@ func (t *AuthServiceTest) TestAuthUser() {
 					Return(nil)
 
 				ue := t.users.EXPECT()
-				ue.GetUser(model.Username("new_test_user")).
+				ue.GetUser(mock.Anything, model.Username("new_test_user")).
 					Return(nil, model.ErrUserNotExist)
-				ue.CreateUser(model.Username("new_test_user"), model.PasswordHash("421"), model.NumCoins(1000)).
+				ue.CreateUser(mock.Anything, model.Username("new_test_user"), model.PasswordHash("421"), model.NumCoins(1000)).
 					Return(&users[1], nil)
 
 				t.auth.EXPECT().
@@ -110,7 +112,7 @@ func (t *AuthServiceTest) TestAuthUser() {
 					Return(model.ErrAuthFail)
 
 				t.users.EXPECT().
-					GetUser(model.Username("test_user")).
+					GetUser(mock.Anything, model.Username("test_user")).
 					Return(&users[0], nil)
 			},
 			Err: func(t assert.TestingT, err error, args ...any) bool {
@@ -124,7 +126,7 @@ func (t *AuthServiceTest) TestAuthUser() {
 			test.Setup()
 
 			service := auth.NewAuthService(t.auth, t.users, t.hasher)
-			token, err := service.AuthUser(test.Username, test.Password)
+			token, err := service.AuthUser(context.Background(), test.Username, test.Password)
 
 			test.Err(t.T(), err)
 			t.Equal(test.Token, token)

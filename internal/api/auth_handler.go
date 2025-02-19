@@ -35,7 +35,7 @@ func (h *authHandler) authUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := h.authService.AuthUser(username, passwd)
+	token, err := h.authService.AuthUser(r.Context(), username, passwd)
 	if err != nil {
 		if errors.Is(err, model.ErrAuthFail) {
 			unauthorizedHandler("The provided credentials are invalid")(w, r)

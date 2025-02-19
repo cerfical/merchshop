@@ -18,7 +18,7 @@ type coinsHandler struct {
 func (h *coinsHandler) info(w http.ResponseWriter, r *http.Request) {
 	// TODO: The assumption is that the username provided refers to an existing username
 	username := userFromRequest(r)
-	u, err := h.coinService.GetUser(username)
+	u, err := h.coinService.GetUser(r.Context(), username)
 	if err != nil {
 		internalErrorHandler(h.log, "Unable to access user storage", err)(w, r)
 		return
@@ -83,7 +83,7 @@ func (h *coinsHandler) sendCoin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fromUser := userFromRequest(r)
-	if err := h.coinService.SendCoins(fromUser, toUser, amount); err != nil {
+	if err := h.coinService.SendCoins(r.Context(), fromUser, toUser, amount); err != nil {
 		if modelErr := model.Error(""); errors.As(err, &modelErr) {
 			badRequestHandler(fmt.Sprintf("Couldn't complete the coin transfer: %v", modelErr))(w, r)
 		} else {
@@ -103,7 +103,7 @@ func (h *coinsHandler) buyItem(w http.ResponseWriter, r *http.Request) {
 	}
 
 	buyer := userFromRequest(r)
-	if err := h.coinService.BuyItem(buyer, merch); err != nil {
+	if err := h.coinService.BuyItem(r.Context(), buyer, merch); err != nil {
 		if modelErr := model.Error(""); errors.As(err, &modelErr) {
 			badRequestHandler(fmt.Sprintf("Couldn't complete the merch purchase: %v", modelErr))(w, r)
 		} else {

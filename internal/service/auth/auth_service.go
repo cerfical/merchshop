@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -15,8 +16,8 @@ const (
 type Token string
 
 type AuthService interface {
-	AuthUser(model.Username, model.Password) (Token, error)
-	AuthToken(Token) (model.Username, error)
+	AuthUser(context.Context, model.Username, model.Password) (Token, error)
+	AuthToken(context.Context, Token) (model.Username, error)
 }
 
 type PasswordHasher interface {
@@ -35,17 +36,17 @@ type authService struct {
 	auth   TokenAuth
 }
 
-func (s *authService) AuthUser(username model.Username, passwd model.Password) (Token, error) {
+func (s *authService) AuthUser(ctx context.Context, username model.Username, passwd model.Password) (Token, error) {
 	passwdHash, err := s.hasher.HashPassword(passwd)
 	if err != nil {
 		return "", fmt.Errorf("hash password: %w", err)
 	}
 
 	// TODO: Think of a better solution?
-	u, err := s.users.GetUser(username)
+	u, err := s.users.GetUser(ctx, username)
 	if err != nil {
 		if errors.Is(err, model.ErrUserNotExist) {
-			u, err = s.users.CreateUser(username, passwdHash, defaultCoinBalance)
+			u, err = s.users.CreateUser(ctx, username, passwdHash, defaultCoinBalance)
 			if err != nil {
 				return "", fmt.Errorf("create user: %w", err)
 			}
@@ -66,7 +67,7 @@ func (s *authService) AuthUser(username model.Username, passwd model.Password) (
 	return token, nil
 }
 
-func (s *authService) AuthToken(token Token) (model.Username, error) {
+func (s *authService) AuthToken(_ context.Context, token Token) (model.Username, error) {
 	return s.auth.AuthToken(token)
 }
 
