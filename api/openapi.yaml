@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title: API Avito shop
+  title: Merch shop
   version: 1.0.0
 
 servers:
@@ -12,38 +12,38 @@ security:
 paths:
   /api/info:
     get:
-      summary: Получить информацию о монетах, инвентаре и истории транзакций.
+      summary: Get information about coins, inventory and transaction history
       security:
         - BearerAuth: []
       responses:
-        '200':
-          description: Успешный ответ.
+        "200":
+          description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/InfoResponse'
-        '400':
-          description: Неверный запрос.
+                $ref: "#/components/schemas/InfoResponse"
+        "400":
+          description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
-          description: Неавторизован.
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Внутренняя ошибка сервера.
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /api/sendCoin:
     post:
-      summary: Отправить монеты другому пользователю.
+      summary: Send coins to another user
       security:
         - BearerAuth: []
       requestBody:
@@ -51,32 +51,32 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SendCoinRequest'
+              $ref: "#/components/schemas/SendCoinRequest"
       responses:
-        '200':
-          description: Успешный ответ.
-        '400':
-          description: Неверный запрос.
+        "200":
+          description: OK
+        "400":
+          description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
-          description: Неавторизован.
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Внутренняя ошибка сервера.
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /api/buy/{item}:
     get:
-      summary: Купить предмет за монеты.
+      summary: Buy merch item for coins
       security:
         - BearerAuth: []
       parameters:
@@ -86,61 +86,61 @@ paths:
           schema:
             type: string
       responses:
-        '200':
-          description: Успешный ответ.
-        '400':
-          description: Неверный запрос.
+        "200":
+          description: OK
+        "400":
+          description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
-          description: Неавторизован.
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Внутренняя ошибка сервера.
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /api/auth:
     post:
-      summary: Аутентификация и получение JWT-токена. При первой аутентификации пользователь создается автоматически. 
+      summary: Authenticate the user and obtain a JWT token. The user is created automatically upon first authentication
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AuthRequest'
+              $ref: "#/components/schemas/AuthRequest"
       responses:
-        '200':
-          description: Успешная аутентификация.
+        "200":
+          description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthResponse'
-        '400':
-          description: Неверный запрос.
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
-          description: Неавторизован.
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Внутренняя ошибка сервера.
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
 components:
   securitySchemes:
@@ -155,7 +155,7 @@ components:
       properties:
         coins:
           type: integer
-          description: Количество доступных монет.
+          description: The amount of available coins
         inventory:
           type: array
           items:
@@ -163,10 +163,10 @@ components:
             properties:
               type:
                 type: string
-                description: Тип предмета.
+                description: Merch kind
               quantity:
                 type: integer
-                description: Количество предметов.
+                description: The number of bought items
         coinHistory:
           type: object
           properties:
@@ -177,10 +177,10 @@ components:
                 properties:
                   fromUser:
                     type: string
-                    description: Имя пользователя, который отправил монеты.
+                    description: The user who sent the coins
                   amount:
                     type: integer
-                    description: Количество полученных монет.
+                    description: The amount of received coins
             sent:
               type: array
               items:
@@ -188,28 +188,28 @@ components:
                 properties:
                   toUser:
                     type: string
-                    description: Имя пользователя, которому отправлены монеты.
+                    description: The user who received the coins
                   amount:
                     type: integer
-                    description: Количество отправленных монет.
+                    description: The amount of sent coins
 
     ErrorResponse:
       type: object
       properties:
         errors:
           type: string
-          description: Сообщение об ошибке, описывающее проблему.
+          description: Error message describing the problem
 
     AuthRequest:
       type: object
       properties:
         username:
           type: string
-          description: Имя пользователя для аутентификации.
+          description: Username to authenticate
         password:
           type: string
           format: password
-          description: Пароль для аутентификации.
+          description: Authentication password
       required:
         - username
         - password
@@ -219,17 +219,17 @@ components:
       properties:
         token:
           type: string
-          description: JWT-токен для доступа к защищенным ресурсам.
+          description: JWT token to access protected resources
 
     SendCoinRequest:
       type: object
       properties:
         toUser:
           type: string
-          description: Имя пользователя, которому нужно отправить монеты.
+          description: The user to receive the sent coins
         amount:
           type: integer
-          description: Количество монет, которые необходимо отправить.
+          description: The number of coins to send
       required:
         - toUser
         - amount
